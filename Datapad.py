@@ -148,8 +148,8 @@ spots = [
     {'id': "parkInSite",	'Type': 'boolean',	 'pos': (200, 170), 'size': (60, 60), 'color': GRAY, 'label': "False"},
     ]
 
-page1 = ["rePosBase", "delivSkySt+", "delivSkySt-", "delivRegSt+", "delivRegSt-", "placeSt_A", "parkOnTape"]
-page2 = ["delivTele", "placeSt", "towerLevel", "capTower", "removeBase", "parkInSite"]
+page1 = ["rePosBase", "delivSkySt+", "delivSkySt-", "delivRegSt+", "delivRegSt-", "placeSt_A+", "placeSt_A-", "parkOnTape"]
+page2 = ["delivTele+", "delivTele-", "placeSt+", "placeSt-", "towerLevel+", "towerLevel-", "capTower", "removeBase", "parkInSite"]
 
 buttonsgroup = displayio.Group(max_size=25)
 
