@@ -16,6 +16,7 @@ import digitalio
 import busio
 import storage
 import adafruit_touchscreen
+import datapad_methods
 
 cwd = ("/"+__file__).rsplit('/', 1)[0] # the current working directory (where this file is)
 
@@ -274,7 +275,7 @@ maindict = {
 }
 maindictorder = ["TEAM_NUM", "MATCH", "rePosBase", "delivSkySt", "delivRegSt", "placeSt_A", "parkOnTape", "delivTele", "placeSt", "towerLevel", "capTower", "removeBase", "parkInSite"]
 
-
+ex_display_update_all()
 
 
 def update_display():
