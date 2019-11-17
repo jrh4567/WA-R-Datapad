@@ -16,7 +16,7 @@ import digitalio
 import busio
 import storage
 import adafruit_touchscreen
-import datapad_methods
+from datapad_methods import datapadHelper
 
 cwd = ("/"+__file__).rsplit('/', 1)[0] # the current working directory (where this file is)
 
@@ -90,13 +90,15 @@ BACKGROUND_COLOR = 0x000000
 print("Loading...")
 loadingscreen = Label(nunito, text="Loading, please wait...", color=HEX_WHITE, x=10, y=120)
 lSVersionInfo = Label(arial_12, text="FTC-Skysotne Season", color=HEX_WHITE, x=10, y=150)
-lSCredits = Label(arial_12, text="Created By Jackson Holbrook", color=HEX_WHITE, x=10, y=180)
+lSCredits = Label(arial_12, text="Created By Whitefield Robotics", color=HEX_WHITE, x=10, y=180)
 loadingScreenGroup = displayio.Group(max_size=4)
 loadingScreenGroup.append(loadingscreen)
 loadingScreenGroup.append(lSVersionInfo)
 loadingScreenGroup.append(lSCredits)
 board.DISPLAY.show(loadingScreenGroup)
 
+dpm = datapadHelper(11)
+dpm.ext_print_test()
 
 print("Mounting SD Card")
 spi = busio.SPI(board.SCK, MOSI=board.MOSI, MISO=board.MISO)
@@ -275,7 +277,6 @@ maindict = {
 }
 maindictorder = ["TEAM_NUM", "MATCH", "rePosBase", "delivSkySt", "delivRegSt", "placeSt_A", "parkOnTape", "delivTele", "placeSt", "towerLevel", "capTower", "removeBase", "parkInSite"]
 
-ex_display_update_all()
 
 
 def update_display():
@@ -316,6 +317,7 @@ def display_update_all():
 		tf2.label = "False"
 	board.DISPLAY.refresh_soon()
 		
+'''
 def old_sd_write():  #uses maindict (dict) and maindictorder (array). the array provides order for the dictionary.
 	print("Writing the matrix...")
 	f = open('/sd/TESTfile.txt', 'a')
@@ -335,8 +337,8 @@ def old_sd_write():  #uses maindict (dict) and maindictorder (array). the array 
 		f.write("\n")
 		print(maindict.get(v))
 	f.close()
-	print("Writing Complete")
-
+	print("Writing Complete") '''
+'''
 def sd_write_():
 	print("Writing to sd card...")
 	superorder = []
@@ -371,6 +373,7 @@ def sd_write_():
 	f.close()
 	print("Match Quantity Data Complete")
 	print("Writing Complete")
+	'''
 
 
 def sd_write():
@@ -422,7 +425,7 @@ def increment(value, condition, changeValue, direction, amount):
 		changeValue += amount
 		print(changeValue)
 	
-
+#inPreMainLoop = 1
 print("Beginning Superloop")
 while True:
 
@@ -485,7 +488,7 @@ while True:
 						matrix_write()
 						sd_write()
 						inMainLoop = False
-			'''
+						'''
 					if button.name == "1":
 						maindict["pCtDepot"] = maindict["pCtDepot"] + 1
 						print(maindict["pCtDepot"])
@@ -518,8 +521,8 @@ while True:
 						print(maindict["toggleSample"]) 
 						'''
 					
-					update_display()
-					break
+				update_display()
+				break
 		time.sleep(0.05)
 	
 	matchid += 1
