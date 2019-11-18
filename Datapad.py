@@ -16,7 +16,7 @@ import digitalio
 import busio
 import storage
 import adafruit_touchscreen
-from datapad_methods import datapadHelper
+#from datapad_methods import datapadHelper #can't import other file b/c of memory limits
 
 cwd = ("/"+__file__).rsplit('/', 1)[0] # the current working directory (where this file is)
 
@@ -90,15 +90,15 @@ BACKGROUND_COLOR = 0x000000
 print("Loading...")
 loadingscreen = Label(nunito, text="Loading, please wait...", color=HEX_WHITE, x=10, y=120)
 lSVersionInfo = Label(arial_12, text="FTC-Skysotne Season", color=HEX_WHITE, x=10, y=150)
-lSCredits = Label(arial_12, text="Created By Whitefield Robotics", color=HEX_WHITE, x=10, y=180)
+lSCredits = Label(arial_12, text="Created By Whitefield Robotics (11127)", color=HEX_WHITE, x=10, y=180)
 loadingScreenGroup = displayio.Group(max_size=4)
 loadingScreenGroup.append(loadingscreen)
 loadingScreenGroup.append(lSVersionInfo)
 loadingScreenGroup.append(lSCredits)
 board.DISPLAY.show(loadingScreenGroup)
 
-dpm = datapadHelper(11)
-dpm.ext_print_test()
+#dpm = datapadHelper(11) #can't import other file b/c of memory limits
+#dpm.ext_print_test()
 
 print("Mounting SD Card")
 spi = busio.SPI(board.SCK, MOSI=board.MOSI, MISO=board.MISO)
@@ -117,64 +117,77 @@ ts = adafruit_touchscreen.Touchscreen(board.TOUCH_XL, board.TOUCH_XR,
 
 
 """ INITing main disp elements """
-
+#200 60 	260 60
+#200 170	260 170
 spots = [
 	{'id': "write",			'Type': 'eject',	 'pos': (10, 200), 'size': (45, 45), 'color': VIOLET, 'label': "W"},
 	{'id': "nextpage",		'Type': 'select',	 'pos': (65, 200), 'size': (45, 45), 'color': VIOLET, 'label': "N"},
 	
-	{'id': "rePosBase",		'Type': 'boolean',	 'pos': (260, 60), 'size': (60, 60), 'color': GRAY, 'label': "False"}, 
+	{'id': "rePosBase",		'Type': 'boolean',	 'pos': (95, 10), 'size': (70, 50), 'color': GRAY, 'label': "False"}, #correct
 	
-    {'id': "delivSkySt+",	'Type': 'int',		 'pos': (200, 60), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
-    {'id': "delivSkySt-",	'Type': 'int',		 'pos': (200, 60), 'size': (60, 60), 'color': RED, 'label': "-1"},
-    
-    {'id': "delivRegSt+",	'Type': 'int',		 'pos': (95, 10), 'size': (70, 50), 'color': BLUE, 'label': "False"},
-    {'id': "delivRegSt-",	'Type': 'int',		 'pos': (95, 10), 'size': (70, 50), 'color': RED, 'label': "False"},
-    
-    {'id': "placeSt_A+",	'Type': 'int',		 'pos': (95, 80), 'size': (70, 50), 'color': BLUE, 'label': "False"},
-    {'id': "placeSt_A-",	'Type': 'int',		 'pos': (95, 80), 'size': (70, 50), 'color': RED, 'label': "False"},
-    
-    {'id': "parkOnTape",	'Type': 'boolean',	 'pos': (260, 170), 'size': (60, 60), 'color': BLUE, 'label': "False"},
-    
-    {'id': "delivTele+",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
-    {'id': "delivTele-",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': RED, 'label': "-1"},
-    
-    {'id': "placeSt+",		'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
-    {'id': "placeSt-",		'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': RED, 'label': "-1"},
-    
-    {'id': "towerLevel+",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
-    {'id': "towerLevel-",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': RED, 'label': "-1"},
-    
-    {'id': "capTower",		'Type': 'boolean',	 'pos': (200, 170), 'size': (60, 60), 'color': GRAY, 'label': "False"},
-    
-    {'id': "removeBase",	'Type': 'boolean',	 'pos': (200, 170), 'size': (60, 60), 'color': GRAY, 'label': "False"},
-    
-    {'id': "parkInSite",	'Type': 'boolean',	 'pos': (200, 170), 'size': (60, 60), 'color': GRAY, 'label': "False"},
-    ]
+	{'id': "delivSkySt+",	'Type': 'int',		 'pos': (260, 60), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
+	{'id': "delivSkySt-",	'Type': 'int',		 'pos': (200, 60), 'size': (60, 60), 'color': RED, 'label': "-1"},
+	
+	{'id': "delivRegSt+",	'Type': 'int',		 'pos': (97, 10), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
+	{'id': "delivRegSt-",	'Type': 'int',		 'pos': (95, 10), 'size': (60, 60), 'color': RED, 'label': "-1"},
+	
+	{'id': "placeSt_A+",	'Type': 'int',		 'pos': (95, 80), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
+	{'id': "placeSt_A-",	'Type': 'int',		 'pos': (95, 80), 'size': (60, 60), 'color': RED, 'label': "-1"},
+	
+	{'id': "parkOnTape",	'Type': 'boolean',	 'pos': (95, 70), 'size': (70, 50), 'color': GRAY, 'label': "False"}, 
+	
+	{'id': "delivTele+",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
+	{'id': "delivTele-",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': RED, 'label': "-1"},
+	
+	{'id': "placeSt+",		'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
+	{'id': "placeSt-",		'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': RED, 'label': "-1"},
+	
+	{'id': "towerLevel+",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
+	{'id': "towerLevel-",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': RED, 'label': "-1"},
+	
+	{'id': "capTower",		'Type': 'boolean',	 'pos': (200, 170), 'size': (60, 60), 'color': GRAY, 'label': "False"},
+	
+	{'id': "removeBase",	'Type': 'boolean',	 'pos': (200, 170), 'size': (60, 60), 'color': GRAY, 'label': "False"},
+	
+	{'id': "parkInSite",	'Type': 'boolean',	 'pos': (200, 170), 'size': (60, 60), 'color': GRAY, 'label': "False"},
+	]
 
 page1 = ["rePosBase", "delivSkySt+", "delivSkySt-", "delivRegSt+", "delivRegSt-", "placeSt_A+", "placeSt_A-", "parkOnTape"]
 page2 = ["delivTele+", "delivTele-", "placeSt+", "placeSt-", "towerLevel+", "towerLevel-", "capTower", "removeBase", "parkInSite"]
 
-buttonsgroup = displayio.Group(max_size=25)
+buttonsgroup1 = displayio.Group(max_size=len(page1))
+buttonsgroup2 = displayio.Group(max_size= 25) #len(page2))
 
 buttons = []
 for spot in spots:
     button = Button(x=spot['pos'][0], y=spot['pos'][1],
                     width=spot['size'][0], height=spot['size'][1],
-                    style=Button.SHADOWROUNDRECT,
+                    style=Button.ROUNDRECT,
                     fill_color=spot['color'], outline_color=0x222222,
                     name=spot['id'],label=spot['label'], label_font=arial_16)
     buttons.append(button)
-    buttonsgroup.append(button.group)
+    if spot['id'] in page1:
+        buttonsgroup1.append(button.group)
+        print("Adding {} to pg1", spot)
+    else:
+        buttonsgroup2.append(button.group)
+        print("Adding {} to pg2", spot)
+
 
 
 dispgroup = displayio.Group(max_size=25)
 
+dispgroup.append(Label(arial_12, text="Moved Base?", color=HEX_WHITE, x=10, y=35)) #correct
 
-pCtDepotDisp = Label(arial_16, text="000", color=HEX_WHITE, x=255, y=40)
-dispelements.append(pCtDepotDisp)
+dispgroup.append(Label(arial_12, text="parkOnTape?", color=HEX_WHITE, x=10, y=80)) #correct
 
-pCtDepotLabel = Label(arial_12, text="mineralsInDepot", color=HEX_WHITE, x=205, y=20)
-dispelements.append(pCtDepotLabel)
+dispgroup.append(Label(arial_12, text="SkyStones Delived", color=HEX_WHITE, x=205, y=20)) #correct
+
+skStoneDeliv = Label(arial_16, text="0", color=HEX_WHITE, x=255, y=40) #correct
+dispelements.append(skStoneDeliv)
+
+
+
 
 
 pCtLanderDisp = Label(arial_16, text="000", color=HEX_WHITE, x=255, y=160)
@@ -184,17 +197,11 @@ pCtLanderLabel = Label(arial_12, text="mineralsInLander", color=HEX_WHITE, x=205
 dispelements.append(pCtLanderLabel)
 
 
-dl_drop = Label(arial_12, text="Drop?", color=HEX_WHITE, x=10, y=35)
-dispelements.append(dl_drop)
-
-dl_sample = Label(arial_12, text="Sample?", color=HEX_WHITE, x=10, y=95)
-dispelements.append(dl_sample)
-
 for thing in dispelements:
 	dispgroup.append(thing)
 
 maingroup = displayio.Group(max_size=5) # if getting weird errors, increase max size
-maingroup.append(buttonsgroup)
+maingroup.append(buttonsgroup1)
 maingroup.append(dispgroup)
 
 
@@ -280,42 +287,25 @@ maindictorder = ["TEAM_NUM", "MATCH", "rePosBase", "delivSkySt", "delivRegSt", "
 
 
 def update_display():
-    """Update the display with current info."""
-    pCtDepotDisp.text = "{000}".format(maindict["pCtDepot"])  
-    pCtLanderDisp.text = "{000}".format(maindict["pCtLander"])
-    
+	"""Update the display with current info."""
+	'''
+	pCtDepotDisp.text = "{000}".format(maindict["pCtDepot"])  
+	pCtLanderDisp.text = "{000}".format(maindict["pCtLander"])
+	
 	#tf1 = buttons[3]
 	if maindict["toggleDrop"] == True: 
 		buttons[3].label = "True"
 	else: #indentation visual glitch
 		buttons[3].label = "False"
 
-    #if lastPressed == "4":
+	#if lastPressed == "4":
 	#tf2 = buttons[4]
 	if maindict["toggleSample"] == True:
 		buttons[4].label = "True"
 	else:
 		buttons[4].label = "False"
-
-    board.DISPLAY.refresh_soon()
-
-def display_update_all():
-	pCtDepotDisp.text = "{000}".format(maindict["pCtDepot"]) 
-	pCtLanderDisp.text = "{000}".format(maindict["pCtLander"])
-
-	tf1 = buttons[3]
-	if maindict["toggleDrop"] == True: 
-		tf1.label = "True"
-	else:
-		tf1.label = "False"
-	
-	tf2 = buttons[4]
-	if maindict["toggleSample"] == True:
-		tf2.label = "True"
-	else:
-		tf2.label = "False"
+	'''
 	board.DISPLAY.refresh_soon()
-		
 
 
 def sd_write():
@@ -417,7 +407,7 @@ while True:
 
 	inMainLoop = True
 	board.DISPLAY.show(maingroup)
-	display_update_all()
+	update_display()
 	print("Starting Main Loop")  
 	while inMainLoop:
 		touch = ts.touch_point
