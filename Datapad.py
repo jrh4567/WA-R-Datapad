@@ -125,16 +125,16 @@ spots = [
 	
 	{'id': "rePosBase",		'Type': 'boolean',	 'pos': (95, 10), 'size': (70, 50), 'color': GRAY, 'label': "False"}, #correct
 	
-	{'id': "delivSkySt+",	'Type': 'int',		 'pos': (260, 60), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
-	{'id': "delivSkySt-",	'Type': 'int',		 'pos': (200, 60), 'size': (60, 60), 'color': RED, 'label': "-1"},
+	{'id': "delivSkySt+",	'Type': 'int',		 'pos': (260, 40), 'size': (60, 40), 'color': BLUE, 'label': "+1"}, #correct
+	{'id': "delivSkySt-",	'Type': 'int',		 'pos': (200, 40), 'size': (60, 40), 'color': RED, 'label': "-1"}, #correct
 	
-	{'id': "delivRegSt+",	'Type': 'int',		 'pos': (97, 10), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
-	{'id': "delivRegSt-",	'Type': 'int',		 'pos': (95, 10), 'size': (60, 60), 'color': RED, 'label': "-1"},
+	{'id': "delivRegSt+",	'Type': 'int',		 'pos': (260, 130), 'size': (60, 40), 'color': BLUE, 'label': "+1"},
+	{'id': "delivRegSt-",	'Type': 'int',		 'pos': (200, 130), 'size': (60, 40), 'color': RED, 'label': "-1"},
 	
 	{'id': "placeSt_A+",	'Type': 'int',		 'pos': (95, 80), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
 	{'id': "placeSt_A-",	'Type': 'int',		 'pos': (95, 80), 'size': (60, 60), 'color': RED, 'label': "-1"},
 	
-	{'id': "parkOnTape",	'Type': 'boolean',	 'pos': (95, 70), 'size': (70, 50), 'color': GRAY, 'label': "False"}, 
+	{'id': "parkOnTape",	'Type': 'boolean',	 'pos': (95, 70), 'size': (70, 50), 'color': GRAY, 'label': "False"}, #correct
 	
 	{'id': "delivTele+",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
 	{'id': "delivTele-",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': RED, 'label': "-1"},
@@ -181,24 +181,17 @@ dispgroup.append(Label(arial_12, text="Moved Base?", color=HEX_WHITE, x=10, y=35
 
 dispgroup.append(Label(arial_12, text="parkOnTape?", color=HEX_WHITE, x=10, y=80)) #correct
 
-dispgroup.append(Label(arial_12, text="SkyStones Delived", color=HEX_WHITE, x=205, y=20)) #correct
+dispgroup.append(Label(arial_12, text="Skystones Delived", color=HEX_WHITE, x=205, y=10)) #correct
+skStoneDeliv = Label(arial_16, text="0", color=HEX_WHITE, x=255, y=27) #correct
+dispgroup.append(skStoneDeliv)
 
-skStoneDeliv = Label(arial_16, text="0", color=HEX_WHITE, x=255, y=40) #correct
-dispelements.append(skStoneDeliv)
-
-
-
-
-
-pCtLanderDisp = Label(arial_16, text="000", color=HEX_WHITE, x=255, y=160)
-dispelements.append(pCtLanderDisp)
-
-pCtLanderLabel = Label(arial_12, text="mineralsInLander", color=HEX_WHITE, x=205, y=130)
-dispelements.append(pCtLanderLabel)
+dispgroup.append(Label(arial_12, text="Stones Delived", color=HEX_WHITE, x=205, y=95)) #correct
+rgStoneDeliv = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=115) #correct
+dispgroup.append(rgStoneDeliv) 
 
 
-for thing in dispelements:
-	dispgroup.append(thing)
+#for thing in dispelements:
+#	dispgroup.append(thing)
 
 maingroup = displayio.Group(max_size=5) # if getting weird errors, increase max size
 maingroup.append(buttonsgroup1)
