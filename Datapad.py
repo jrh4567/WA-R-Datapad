@@ -16,6 +16,7 @@ import digitalio
 import busio
 import storage
 import adafruit_touchscreen
+#from datapad_methods import datapadHelper #can't import other file b/c of memory limits
 
 cwd = ("/"+__file__).rsplit('/', 1)[0] # the current working directory (where this file is)
 
@@ -89,13 +90,15 @@ BACKGROUND_COLOR = 0x000000
 print("Loading...")
 loadingscreen = Label(nunito, text="Loading, please wait...", color=HEX_WHITE, x=10, y=120)
 lSVersionInfo = Label(arial_12, text="FTC-Skysotne Season", color=HEX_WHITE, x=10, y=150)
-lSCredits = Label(arial_12, text="Created By Jackson Holbrook", color=HEX_WHITE, x=10, y=180)
+lSCredits = Label(arial_12, text="Created By Whitefield Robotics (11127)", color=HEX_WHITE, x=10, y=180)
 loadingScreenGroup = displayio.Group(max_size=4)
 loadingScreenGroup.append(loadingscreen)
 loadingScreenGroup.append(lSVersionInfo)
 loadingScreenGroup.append(lSCredits)
 board.DISPLAY.show(loadingScreenGroup)
 
+#dpm = datapadHelper(11) #can't import other file b/c of memory limits
+#dpm.ext_print_test()
 
 print("Mounting SD Card")
 spi = busio.SPI(board.SCK, MOSI=board.MOSI, MISO=board.MISO)
@@ -113,89 +116,7 @@ ts = adafruit_touchscreen.Touchscreen(board.TOUCH_XL, board.TOUCH_XR,
                                       size=(320, 240))
 
 
-""" INITing main disp elements """
-
-spots = [
-	{'id': "write",			'Type': 'eject',	 'pos': (10, 200), 'size': (45, 45), 'color': VIOLET, 'label': "W"},
-	{'id': "nextpage",		'Type': 'select',	 'pos': (65, 200), 'size': (45, 45), 'color': VIOLET, 'label': "N"},
-	
-	{'id': "rePosBase",		'Type': 'boolean',	 'pos': (260, 60), 'size': (60, 60), 'color': GRAY, 'label': "False"}, 
-	
-    {'id': "delivSkySt+",	'Type': 'int',		 'pos': (200, 60), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
-    {'id': "delivSkySt-",	'Type': 'int',		 'pos': (200, 60), 'size': (60, 60), 'color': RED, 'label': "-1"},
-    
-    {'id': "delivRegSt+",	'Type': 'int',		 'pos': (95, 10), 'size': (70, 50), 'color': BLUE, 'label': "False"},
-    {'id': "delivRegSt-",	'Type': 'int',		 'pos': (95, 10), 'size': (70, 50), 'color': RED, 'label': "False"},
-    
-    {'id': "placeSt_A+",	'Type': 'int',		 'pos': (95, 80), 'size': (70, 50), 'color': BLUE, 'label': "False"},
-    {'id': "placeSt_A-",	'Type': 'int',		 'pos': (95, 80), 'size': (70, 50), 'color': RED, 'label': "False"},
-    
-    {'id': "parkOnTape",	'Type': 'boolean',	 'pos': (260, 170), 'size': (60, 60), 'color': BLUE, 'label': "False"},
-    
-    {'id': "delivTele+",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
-    {'id': "delivTele-",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': RED, 'label': "-1"},
-    
-    {'id': "placeSt+",		'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
-    {'id': "placeSt-",		'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': RED, 'label': "-1"},
-    
-    {'id': "towerLevel+",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
-    {'id': "towerLevel-",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': RED, 'label': "-1"},
-    
-    {'id': "capTower",		'Type': 'boolean',	 'pos': (200, 170), 'size': (60, 60), 'color': GRAY, 'label': "False"},
-    
-    {'id': "removeBase",	'Type': 'boolean',	 'pos': (200, 170), 'size': (60, 60), 'color': GRAY, 'label': "False"},
-    
-    {'id': "parkInSite",	'Type': 'boolean',	 'pos': (200, 170), 'size': (60, 60), 'color': GRAY, 'label': "False"},
-    ]
-
-page1 = ["rePosBase", "delivSkySt+", "delivSkySt-", "delivRegSt+", "delivRegSt-", "placeSt_A+", "placeSt_A-", "parkOnTape"]
-page2 = ["delivTele+", "delivTele-", "placeSt+", "placeSt-", "towerLevel+", "towerLevel-", "capTower", "removeBase", "parkInSite"]
-
-buttonsgroup = displayio.Group(max_size=25)
-
-buttons = []
-for spot in spots:
-    button = Button(x=spot['pos'][0], y=spot['pos'][1],
-                    width=spot['size'][0], height=spot['size'][1],
-                    style=Button.SHADOWROUNDRECT,
-                    fill_color=spot['color'], outline_color=0x222222,
-                    name=spot['id'],label=spot['label'], label_font=arial_16)
-    buttons.append(button)
-    buttonsgroup.append(button.group)
-
-
-dispgroup = displayio.Group(max_size=25)
-
-
-pCtDepotDisp = Label(arial_16, text="000", color=HEX_WHITE, x=255, y=40)
-dispelements.append(pCtDepotDisp)
-
-pCtDepotLabel = Label(arial_12, text="mineralsInDepot", color=HEX_WHITE, x=205, y=20)
-dispelements.append(pCtDepotLabel)
-
-
-pCtLanderDisp = Label(arial_16, text="000", color=HEX_WHITE, x=255, y=160)
-dispelements.append(pCtLanderDisp)
-
-pCtLanderLabel = Label(arial_12, text="mineralsInLander", color=HEX_WHITE, x=205, y=130)
-dispelements.append(pCtLanderLabel)
-
-
-dl_drop = Label(arial_12, text="Drop?", color=HEX_WHITE, x=10, y=35)
-dispelements.append(dl_drop)
-
-dl_sample = Label(arial_12, text="Sample?", color=HEX_WHITE, x=10, y=95)
-dispelements.append(dl_sample)
-
-for thing in dispelements:
-	dispgroup.append(thing)
-
-maingroup = displayio.Group(max_size=5) # if getting weird errors, increase max size
-maingroup.append(buttonsgroup)
-maingroup.append(dispgroup)
-
-
-
+''' INITing TEAM ID Keypad '''
 
 
 keypadSpots = [
@@ -259,6 +180,94 @@ def changeLabelColor():
 		teamIdLabelText.color = HEX_BLUE
 		timesPressedMax = 5
 
+
+""" INITing main disp elements """
+
+spots = [
+	#PAGE 1
+	{'id': "nextpage",		'Type': 'select',	 'pos': (10, 200), 'size': (70, 45), 'color': GREEN, 'label': "Next"},
+	
+	{'id': "rePosBase",		'Type': 'boolean',	 'pos': (95, 50), 'size': (70, 50), 'color': GRAY, 'label': "False"}, #correct
+	
+	{'id': "parkOnTape",	'Type': 'boolean',	 'pos': (95, 110), 'size': (70, 50), 'color': GRAY, 'label': "False"}, #correct
+	
+	{'id': "delivSkySt+",	'Type': 'int',		 'pos': (260, 35), 'size': (60, 40), 'color': BLUE, 'label': "+1"}, #correct
+	{'id': "delivSkySt-",	'Type': 'int',		 'pos': (200, 35), 'size': (60, 40), 'color': RED, 'label': "-1"}, #correct
+	
+	{'id': "delivRegSt+",	'Type': 'int',		 'pos': (260, 110), 'size': (60, 40), 'color': BLUE, 'label': "+1"}, #correct
+	{'id': "delivRegSt-",	'Type': 'int',		 'pos': (200, 110), 'size': (60, 40), 'color': RED, 'label': "-1"}, #correct
+	
+	{'id': "placeSt_A+",	'Type': 'int',		 'pos': (260, 185), 'size': (60, 40), 'color': BLUE, 'label': "+1"}, #correct
+	{'id': "placeSt_A-",	'Type': 'int',		 'pos': (200, 185), 'size': (60, 40), 'color': RED, 'label': "-1"}, #correct
+	
+	#PAGE 2
+	{'id': "write",			'Type': 'eject',	 'pos': (10, 200), 'size': (70, 45), 'color': VIOLET, 'label': "Wite"},
+	
+	{'id': "delivTele+",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
+	{'id': "delivTele-",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': RED, 'label': "-1"},
+	
+	{'id': "placeSt+",		'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
+	{'id': "placeSt-",		'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': RED, 'label': "-1"},
+	
+	{'id': "towerLevel+",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
+	{'id': "towerLevel-",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': RED, 'label': "-1"},
+	
+	{'id': "capTower",		'Type': 'boolean',	 'pos': (200, 170), 'size': (60, 60), 'color': GRAY, 'label': "False"},
+	
+	{'id': "removeBase",	'Type': 'boolean',	 'pos': (200, 170), 'size': (60, 60), 'color': GRAY, 'label': "False"},
+	
+	{'id': "parkInSite",	'Type': 'boolean',	 'pos': (200, 170), 'size': (60, 60), 'color': GRAY, 'label': "False"},
+	]
+
+page1 = ["nextpage", "rePosBase", "delivSkySt+", "delivSkySt-", "delivRegSt+", "delivRegSt-", "placeSt_A+", "placeSt_A-", "parkOnTape"]
+page2 = ["write", "delivTele+", "delivTele-", "placeSt+", "placeSt-", "towerLevel+", "towerLevel-", "capTower", "removeBase", "parkInSite"]
+
+buttonsgroup1 = displayio.Group(max_size=len(page1))
+buttonsgroup2 = displayio.Group(max_size= 25) #len(page2))
+
+buttons = []
+for spot in spots:
+    button = Button(x=spot['pos'][0], y=spot['pos'][1],
+                    width=spot['size'][0], height=spot['size'][1],
+                    style=Button.ROUNDRECT,
+                    fill_color=spot['color'], outline_color=0x222222,
+                    name=spot['id'],label=spot['label'], label_font=arial_16)
+    buttons.append(button)
+    if spot['id'] in page1:
+        buttonsgroup1.append(button.group)
+        print("Adding {} to pg1".format(spot))
+    else:
+        buttonsgroup2.append(button.group)
+        print("Adding {} to pg2".format(spot))
+
+
+
+dispgroup1 = displayio.Group(max_size=25)
+
+dispgroup1.append(Label(h_font, text="Autonomous Scoring", color=HEX_WHITE, x=15, y=25)) #correct
+
+dispgroup1.append(Label(arial_12, text="Moved Base?", color=HEX_WHITE, x=10, y=75)) #correct
+
+dispgroup1.append(Label(arial_12, text="parkOnTape?", color=HEX_WHITE, x=10, y=133)) #correct
+
+dispgroup1.append(Label(arial_12, text="Skystones Delived", color=HEX_WHITE, x=205, y=10)) #correct
+skStoneDeliv = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=27) #correct
+dispgroup1.append(skStoneDeliv)
+
+dispgroup1.append(Label(arial_12, text="Stones Delived", color=HEX_WHITE, x=205, y=85)) #correct
+rgStoneDeliv = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=102) #correct
+dispgroup1.append(rgStoneDeliv) 
+
+dispgroup1.append(Label(arial_12, text="Stones Placed", color=HEX_WHITE, x=205, y=160)) #correct
+rgStoneDeliv = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=177) #correct
+dispgroup1.append(rgStoneDeliv)
+
+maingroup = displayio.Group(max_size=5) # if getting weird errors, increase max size
+maingroup.append(buttonsgroup1)
+maingroup.append(dispgroup1)
+
+
+
 maindict = {
 	"rePosBase"	: False,
 	"delivSkySt": 0,
@@ -272,104 +281,31 @@ maindict = {
 	"removeBase": False,
 	"parkInSite": False
 }
-maindictorder = ["TEAM_NUM", "MATCH", "rePosBase", "delivSkySt", "delivRegSt", "placeSt_A", "parkOnTape", "delivTele", "placeSt", "towerLevel", "capTower", "removeBase", "parkInSite"]
-
+maindictorder = ["TEAM_NUM", "MATCH", "rePosBase", "delivSkySt", "delivRegSt", "placeSt_A", "parkOnTape",
+				"delivTele", "placeSt", "towerLevel", "capTower", "removeBase", "parkInSite"]
 
 
 
 def update_display():
-    """Update the display with current info."""
-    if lastPressed == "1" or "2": pCtDepotDisp.text = "{000}".format(maindict["pCtDepot"])  
-    if lastPressed == "5" or "6": pCtLanderDisp.text = "{000}".format(maindict["pCtLander"])
-    
-    if lastPressed == "3":  #this part looks wrongly indented in coda 2, but its right, dont touch it 
-    	tf1 = buttons[3]
-    	if maindict["toggleDrop"] == True: 
-		tf1.label = "True"
-	else: #indentation visual glitch
-		tf1.label = "False"
-    
-    if lastPressed == "4":
-	    tf2 = buttons[4]
-	    if maindict["toggleSample"] == True:
-	    	tf2.label = "True"
-	    else:
-	    	tf2.label = "False"
-
-    board.DISPLAY.refresh_soon()
-
-def display_update_all():
-	pCtDepotDisp.text = "{000}".format(maindict["pCtDepot"]) 
+	"""Update the display with current info."""
+	'''
+	pCtDepotDisp.text = "{000}".format(maindict["pCtDepot"])  
 	pCtLanderDisp.text = "{000}".format(maindict["pCtLander"])
-
-	tf1 = buttons[3]
+	
+	#tf1 = buttons[3]
 	if maindict["toggleDrop"] == True: 
-		tf1.label = "True"
-	else:
-		tf1.label = "False"
-	
-	tf2 = buttons[4]
+		buttons[3].label = "True"
+	else: #indentation visual glitch
+		buttons[3].label = "False"
+
+	#if lastPressed == "4":
+	#tf2 = buttons[4]
 	if maindict["toggleSample"] == True:
-		tf2.label = "True"
+		buttons[4].label = "True"
 	else:
-		tf2.label = "False"
+		buttons[4].label = "False"
+	'''
 	board.DISPLAY.refresh_soon()
-		
-def old_sd_write():  #uses maindict (dict) and maindictorder (array). the array provides order for the dictionary.
-	print("Writing the matrix...")
-	f = open('/sd/TESTfile.txt', 'a')
-	f.write('\n\n')
-	f.write("Match ID: ")
-	f.write(str(matchid))
-	f.write("\nTeam ID: ")
-	f.write(str(teamid))
-	f.write("\n")
-	for v in maindictorder:
-		if maindict.get(v) == False:
-			f.write("0")
-		elif maindict.get(v) == True:
-			f.write("1")
-		else:
-			f.write(str(maindict.get(v)))
-		f.write("\n")
-		print(maindict.get(v))
-	f.close()
-	print("Writing Complete")
-
-def sd_write_():
-	print("Writing to sd card...")
-	superorder = []
-	quantiKey = []
-
-	for l in superdict:
-		superorder.append(l)
-		print(superorder)
-	
-	f = open('/sd/data.txt', 'w')
-	for m in superorder:
-		quantiKey.append(len(superdict[m]))
-		for x in range(len(superdict[m])):
-				for y in range(numStats):
-					f.write(superdict[m][x][y])
-					print(superdict[m][x][y])
-	
-	f.close()
-	print("Main Data Complete")
-	
-	f = open('/sd/dataTeamKey.txt', 'w')
-	for z in superorder:	
-		f.write(str(z))
-		print("superorder: ", superorder)
-	f.close()
-	print("Team Data Complete")
-	
-	f = open('/sd/dataQuantiKey.txt', 'w')
-	for z in quantiKey:	
-		f.write(str(z))
-		print("quantiKey: ", quantiKey)
-	f.close()
-	print("Match Quantity Data Complete")
-	print("Writing Complete")
 
 
 def sd_write():
@@ -421,7 +357,7 @@ def increment(value, condition, changeValue, direction, amount):
 		changeValue += amount
 		print(changeValue)
 	
-
+#inPreMainLoop = 1
 print("Beginning Superloop")
 while True:
 
@@ -471,7 +407,7 @@ while True:
 
 	inMainLoop = True
 	board.DISPLAY.show(maingroup)
-	display_update_all()
+	update_display()
 	print("Starting Main Loop")  
 	while inMainLoop:
 		touch = ts.touch_point
@@ -484,7 +420,7 @@ while True:
 						matrix_write()
 						sd_write()
 						inMainLoop = False
-			'''
+						'''
 					if button.name == "1":
 						maindict["pCtDepot"] = maindict["pCtDepot"] + 1
 						print(maindict["pCtDepot"])
@@ -517,8 +453,8 @@ while True:
 						print(maindict["toggleSample"]) 
 						'''
 					
-					update_display()
-					break
+				update_display()
+				break
 		time.sleep(0.05)
 	
 	matchid += 1
