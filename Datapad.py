@@ -116,89 +116,7 @@ ts = adafruit_touchscreen.Touchscreen(board.TOUCH_XL, board.TOUCH_XR,
                                       size=(320, 240))
 
 
-""" INITing main disp elements """
-#200 60 	260 60
-#200 170	260 170
-spots = [
-	{'id': "write",			'Type': 'eject',	 'pos': (10, 200), 'size': (45, 45), 'color': VIOLET, 'label': "W"},
-	{'id': "nextpage",		'Type': 'select',	 'pos': (65, 200), 'size': (45, 45), 'color': VIOLET, 'label': "N"},
-	
-	{'id': "rePosBase",		'Type': 'boolean',	 'pos': (95, 10), 'size': (70, 50), 'color': GRAY, 'label': "False"}, #correct
-	
-	{'id': "delivSkySt+",	'Type': 'int',		 'pos': (260, 40), 'size': (60, 40), 'color': BLUE, 'label': "+1"}, #correct
-	{'id': "delivSkySt-",	'Type': 'int',		 'pos': (200, 40), 'size': (60, 40), 'color': RED, 'label': "-1"}, #correct
-	
-	{'id': "delivRegSt+",	'Type': 'int',		 'pos': (260, 130), 'size': (60, 40), 'color': BLUE, 'label': "+1"},
-	{'id': "delivRegSt-",	'Type': 'int',		 'pos': (200, 130), 'size': (60, 40), 'color': RED, 'label': "-1"},
-	
-	{'id': "placeSt_A+",	'Type': 'int',		 'pos': (95, 80), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
-	{'id': "placeSt_A-",	'Type': 'int',		 'pos': (95, 80), 'size': (60, 60), 'color': RED, 'label': "-1"},
-	
-	{'id': "parkOnTape",	'Type': 'boolean',	 'pos': (95, 70), 'size': (70, 50), 'color': GRAY, 'label': "False"}, #correct
-	
-	{'id': "delivTele+",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
-	{'id': "delivTele-",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': RED, 'label': "-1"},
-	
-	{'id': "placeSt+",		'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
-	{'id': "placeSt-",		'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': RED, 'label': "-1"},
-	
-	{'id': "towerLevel+",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
-	{'id': "towerLevel-",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': RED, 'label': "-1"},
-	
-	{'id': "capTower",		'Type': 'boolean',	 'pos': (200, 170), 'size': (60, 60), 'color': GRAY, 'label': "False"},
-	
-	{'id': "removeBase",	'Type': 'boolean',	 'pos': (200, 170), 'size': (60, 60), 'color': GRAY, 'label': "False"},
-	
-	{'id': "parkInSite",	'Type': 'boolean',	 'pos': (200, 170), 'size': (60, 60), 'color': GRAY, 'label': "False"},
-	]
-
-page1 = ["rePosBase", "delivSkySt+", "delivSkySt-", "delivRegSt+", "delivRegSt-", "placeSt_A+", "placeSt_A-", "parkOnTape"]
-page2 = ["delivTele+", "delivTele-", "placeSt+", "placeSt-", "towerLevel+", "towerLevel-", "capTower", "removeBase", "parkInSite"]
-
-buttonsgroup1 = displayio.Group(max_size=len(page1))
-buttonsgroup2 = displayio.Group(max_size= 25) #len(page2))
-
-buttons = []
-for spot in spots:
-    button = Button(x=spot['pos'][0], y=spot['pos'][1],
-                    width=spot['size'][0], height=spot['size'][1],
-                    style=Button.ROUNDRECT,
-                    fill_color=spot['color'], outline_color=0x222222,
-                    name=spot['id'],label=spot['label'], label_font=arial_16)
-    buttons.append(button)
-    if spot['id'] in page1:
-        buttonsgroup1.append(button.group)
-        print("Adding {} to pg1", spot)
-    else:
-        buttonsgroup2.append(button.group)
-        print("Adding {} to pg2", spot)
-
-
-
-dispgroup = displayio.Group(max_size=25)
-
-dispgroup.append(Label(arial_12, text="Moved Base?", color=HEX_WHITE, x=10, y=35)) #correct
-
-dispgroup.append(Label(arial_12, text="parkOnTape?", color=HEX_WHITE, x=10, y=80)) #correct
-
-dispgroup.append(Label(arial_12, text="Skystones Delived", color=HEX_WHITE, x=205, y=10)) #correct
-skStoneDeliv = Label(arial_16, text="0", color=HEX_WHITE, x=255, y=27) #correct
-dispgroup.append(skStoneDeliv)
-
-dispgroup.append(Label(arial_12, text="Stones Delived", color=HEX_WHITE, x=205, y=95)) #correct
-rgStoneDeliv = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=115) #correct
-dispgroup.append(rgStoneDeliv) 
-
-
-#for thing in dispelements:
-#	dispgroup.append(thing)
-
-maingroup = displayio.Group(max_size=5) # if getting weird errors, increase max size
-maingroup.append(buttonsgroup1)
-maingroup.append(dispgroup)
-
-
-
+''' INITing TEAM ID Keypad '''
 
 
 keypadSpots = [
@@ -262,6 +180,94 @@ def changeLabelColor():
 		teamIdLabelText.color = HEX_BLUE
 		timesPressedMax = 5
 
+
+""" INITing main disp elements """
+
+spots = [
+	#PAGE 1
+	{'id': "nextpage",		'Type': 'select',	 'pos': (10, 200), 'size': (70, 45), 'color': GREEN, 'label': "Next"},
+	
+	{'id': "rePosBase",		'Type': 'boolean',	 'pos': (95, 50), 'size': (70, 50), 'color': GRAY, 'label': "False"}, #correct
+	
+	{'id': "parkOnTape",	'Type': 'boolean',	 'pos': (95, 110), 'size': (70, 50), 'color': GRAY, 'label': "False"}, #correct
+	
+	{'id': "delivSkySt+",	'Type': 'int',		 'pos': (260, 35), 'size': (60, 40), 'color': BLUE, 'label': "+1"}, #correct
+	{'id': "delivSkySt-",	'Type': 'int',		 'pos': (200, 35), 'size': (60, 40), 'color': RED, 'label': "-1"}, #correct
+	
+	{'id': "delivRegSt+",	'Type': 'int',		 'pos': (260, 110), 'size': (60, 40), 'color': BLUE, 'label': "+1"}, #correct
+	{'id': "delivRegSt-",	'Type': 'int',		 'pos': (200, 110), 'size': (60, 40), 'color': RED, 'label': "-1"}, #correct
+	
+	{'id': "placeSt_A+",	'Type': 'int',		 'pos': (260, 185), 'size': (60, 40), 'color': BLUE, 'label': "+1"}, #correct
+	{'id': "placeSt_A-",	'Type': 'int',		 'pos': (200, 185), 'size': (60, 40), 'color': RED, 'label': "-1"}, #correct
+	
+	#PAGE 2
+	{'id': "write",			'Type': 'eject',	 'pos': (10, 200), 'size': (70, 45), 'color': VIOLET, 'label': "Wite"},
+	
+	{'id': "delivTele+",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
+	{'id': "delivTele-",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': RED, 'label': "-1"},
+	
+	{'id': "placeSt+",		'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
+	{'id': "placeSt-",		'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': RED, 'label': "-1"},
+	
+	{'id': "towerLevel+",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
+	{'id': "towerLevel-",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': RED, 'label': "-1"},
+	
+	{'id': "capTower",		'Type': 'boolean',	 'pos': (200, 170), 'size': (60, 60), 'color': GRAY, 'label': "False"},
+	
+	{'id': "removeBase",	'Type': 'boolean',	 'pos': (200, 170), 'size': (60, 60), 'color': GRAY, 'label': "False"},
+	
+	{'id': "parkInSite",	'Type': 'boolean',	 'pos': (200, 170), 'size': (60, 60), 'color': GRAY, 'label': "False"},
+	]
+
+page1 = ["nextpage", "rePosBase", "delivSkySt+", "delivSkySt-", "delivRegSt+", "delivRegSt-", "placeSt_A+", "placeSt_A-", "parkOnTape"]
+page2 = ["write", "delivTele+", "delivTele-", "placeSt+", "placeSt-", "towerLevel+", "towerLevel-", "capTower", "removeBase", "parkInSite"]
+
+buttonsgroup1 = displayio.Group(max_size=len(page1))
+buttonsgroup2 = displayio.Group(max_size= 25) #len(page2))
+
+buttons = []
+for spot in spots:
+    button = Button(x=spot['pos'][0], y=spot['pos'][1],
+                    width=spot['size'][0], height=spot['size'][1],
+                    style=Button.ROUNDRECT,
+                    fill_color=spot['color'], outline_color=0x222222,
+                    name=spot['id'],label=spot['label'], label_font=arial_16)
+    buttons.append(button)
+    if spot['id'] in page1:
+        buttonsgroup1.append(button.group)
+        print("Adding {} to pg1".format(spot))
+    else:
+        buttonsgroup2.append(button.group)
+        print("Adding {} to pg2".format(spot))
+
+
+
+dispgroup1 = displayio.Group(max_size=25)
+
+dispgroup1.append(Label(h_font, text="Autonomous Scoring", color=HEX_WHITE, x=15, y=25)) #correct
+
+dispgroup1.append(Label(arial_12, text="Moved Base?", color=HEX_WHITE, x=10, y=75)) #correct
+
+dispgroup1.append(Label(arial_12, text="parkOnTape?", color=HEX_WHITE, x=10, y=133)) #correct
+
+dispgroup1.append(Label(arial_12, text="Skystones Delived", color=HEX_WHITE, x=205, y=10)) #correct
+skStoneDeliv = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=27) #correct
+dispgroup1.append(skStoneDeliv)
+
+dispgroup1.append(Label(arial_12, text="Stones Delived", color=HEX_WHITE, x=205, y=85)) #correct
+rgStoneDeliv = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=102) #correct
+dispgroup1.append(rgStoneDeliv) 
+
+dispgroup1.append(Label(arial_12, text="Stones Placed", color=HEX_WHITE, x=205, y=160)) #correct
+rgStoneDeliv = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=177) #correct
+dispgroup1.append(rgStoneDeliv)
+
+maingroup = displayio.Group(max_size=5) # if getting weird errors, increase max size
+maingroup.append(buttonsgroup1)
+maingroup.append(dispgroup1)
+
+
+
 maindict = {
 	"rePosBase"	: False,
 	"delivSkySt": 0,
@@ -275,7 +281,8 @@ maindict = {
 	"removeBase": False,
 	"parkInSite": False
 }
-maindictorder = ["TEAM_NUM", "MATCH", "rePosBase", "delivSkySt", "delivRegSt", "placeSt_A", "parkOnTape", "delivTele", "placeSt", "towerLevel", "capTower", "removeBase", "parkInSite"]
+maindictorder = ["TEAM_NUM", "MATCH", "rePosBase", "delivSkySt", "delivRegSt", "placeSt_A", "parkOnTape",
+				"delivTele", "placeSt", "towerLevel", "capTower", "removeBase", "parkInSite"]
 
 
 
