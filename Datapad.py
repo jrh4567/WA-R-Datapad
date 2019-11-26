@@ -27,12 +27,23 @@ other_font = cwd+"/fonts/Arial-ItalicMT-17.bdf"
 nunito_font = cwd+"/fonts/Nunito-Black-17.bdf"
 arial12 = cwd+"/fonts/Arial-12.bdf"
 
+#wolf_bg = cwd+"/HowlingWolf.bmp"
+
 print('loading fonts...')
 arial_16 = bitmap_font.load_font(medium_font)
 h_font = bitmap_font.load_font(header_font)
 arial_o = bitmap_font.load_font(other_font)
 nunito = bitmap_font.load_font(nunito_font)
 arial_12 = bitmap_font.load_font(arial12)
+
+#wolf_sprite = displayio.TileGrid(bitmap = wolf_bg, pixel_shader =  0x000050)
+
+with open("/HowlingWolf.bmp", "rb") as f:
+    odb = displayio.OnDiskBitmap(f)
+    face = displayio.TileGrid(odb, pixel_shader=displayio.ColorConverter(), position=(0,0))
+    splash.append(face)
+    # Wait for the image to load.
+    board.DISPLAY.wait_for_frame()
 
 dispelements = []
 dispbuttons = []
@@ -92,6 +103,7 @@ loadingscreen = Label(nunito, text="Loading, please wait...", color=HEX_WHITE, x
 lSVersionInfo = Label(arial_12, text="FTC-Skysotne Season", color=HEX_WHITE, x=10, y=150)
 lSCredits = Label(arial_12, text="Created By Whitefield Robotics (11127)", color=HEX_WHITE, x=10, y=180)
 loadingScreenGroup = displayio.Group(max_size=4)
+loadingScreenGroup.append(wolf_bg)
 loadingScreenGroup.append(loadingscreen)
 loadingScreenGroup.append(lSVersionInfo)
 loadingScreenGroup.append(lSCredits)
@@ -145,6 +157,7 @@ for spot in keypadSpots:
                     name=spot['id'],label=spot['label'], label_font=arial_16)
     kbuttons.append(button)
     keypadGroup.append(button.group)
+    print("Adding {} to kButtons".format(spot))
 
 
 preMainGroup = displayio.Group(max_size=5) # if getting weird errors, increase max size
@@ -185,7 +198,7 @@ def changeLabelColor():
 
 spots = [
 	#PAGE 1
-	{'id': "nextpage",		'Type': 'select',	 'pos': (10, 200), 'size': (70, 45), 'color': GREEN, 'label': "Next"},
+	{'id': "nextpage",		'Type': 'select',	 'pos': (10, 200), 'size': (70, 45), 'color': GREEN, 'label': "Next"}, #correct
 	
 	{'id': "rePosBase",		'Type': 'boolean',	 'pos': (95, 50), 'size': (70, 50), 'color': GRAY, 'label': "False"}, #correct
 	
@@ -201,29 +214,30 @@ spots = [
 	{'id': "placeSt_A-",	'Type': 'int',		 'pos': (200, 185), 'size': (60, 40), 'color': RED, 'label': "-1"}, #correct
 	
 	#PAGE 2
-	{'id': "write",			'Type': 'eject',	 'pos': (10, 200), 'size': (70, 45), 'color': VIOLET, 'label': "Wite"},
+	{'id': "back",			'Type': 'select',	 'pos': (10, 200), 'size': (70, 45), 'color': RED, 'label': "Back"},
+	{'id': "write",			'Type': 'eject',	 'pos': (85, 200), 'size': (70, 45), 'color': GREEN, 'label': "Write"},
 	
-	{'id': "delivTele+",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
-	{'id': "delivTele-",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': RED, 'label': "-1"},
+	{'id': "capTower",		'Type': 'boolean',	 'pos': (100, 45), 'size': (70, 45), 'color': GRAY, 'label': "False"},
 	
-	{'id': "placeSt+",		'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
-	{'id': "placeSt-",		'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': RED, 'label': "-1"},
+	{'id': "removeBase",	'Type': 'boolean',	 'pos': (100, 95), 'size': (70, 45), 'color': GRAY, 'label': "False"},
 	
-	{'id': "towerLevel+",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': BLUE, 'label': "+1"},
-	{'id': "towerLevel-",	'Type': 'int',		 'pos': (200, 170), 'size': (60, 60), 'color': RED, 'label': "-1"},
+	{'id': "parkInSite",	'Type': 'boolean',	 'pos': (100, 145), 'size': (70, 45), 'color': GRAY, 'label': "False"},
 	
-	{'id': "capTower",		'Type': 'boolean',	 'pos': (200, 170), 'size': (60, 60), 'color': GRAY, 'label': "False"},
+	{'id': "delivTele+",	'Type': 'int',		 'pos': (260, 35), 'size': (60, 40), 'color': BLUE, 'label': "+1"},
+	{'id': "delivTele-",	'Type': 'int',		 'pos': (200, 35), 'size': (60, 40), 'color': RED, 'label': "-1"},
 	
-	{'id': "removeBase",	'Type': 'boolean',	 'pos': (200, 170), 'size': (60, 60), 'color': GRAY, 'label': "False"},
+	{'id': "placeSt+",		'Type': 'int',		 'pos': (260, 110), 'size': (60, 40), 'color': BLUE, 'label': "+1"},
+	{'id': "placeSt-",		'Type': 'int',		 'pos': (200, 110), 'size': (60, 40), 'color': RED, 'label': "-1"},
 	
-	{'id': "parkInSite",	'Type': 'boolean',	 'pos': (200, 170), 'size': (60, 60), 'color': GRAY, 'label': "False"},
+	{'id': "towerLevel+",	'Type': 'int',		 'pos': (260, 185), 'size': (60, 40), 'color': BLUE, 'label': "+1"},
+	{'id': "towerLevel-",	'Type': 'int',		 'pos': (200, 185), 'size': (60, 40), 'color': RED, 'label': "-1"},
 	]
 
 page1 = ["nextpage", "rePosBase", "delivSkySt+", "delivSkySt-", "delivRegSt+", "delivRegSt-", "placeSt_A+", "placeSt_A-", "parkOnTape"]
-page2 = ["write", "delivTele+", "delivTele-", "placeSt+", "placeSt-", "towerLevel+", "towerLevel-", "capTower", "removeBase", "parkInSite"]
+page2 = ["back", "write", "delivTele+", "delivTele-", "placeSt+", "placeSt-", "towerLevel+", "towerLevel-", "capTower", "removeBase", "parkInSite"]
 
 buttonsgroup1 = displayio.Group(max_size=len(page1))
-buttonsgroup2 = displayio.Group(max_size= 25) #len(page2))
+buttonsgroup2 = displayio.Group(max_size=len(page2) + 1)
 
 buttons = []
 for spot in spots:
@@ -242,7 +256,7 @@ for spot in spots:
 
 
 
-dispgroup1 = displayio.Group(max_size=25)
+dispgroup1 = displayio.Group(max_size=10)
 
 dispgroup1.append(Label(h_font, text="Autonomous Scoring", color=HEX_WHITE, x=15, y=25)) #correct
 
@@ -262,9 +276,32 @@ dispgroup1.append(Label(arial_12, text="Stones Placed", color=HEX_WHITE, x=205, 
 rgStoneDeliv = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=177) #correct
 dispgroup1.append(rgStoneDeliv)
 
+
+dispgroup2 = displayio.Group(max_size=25)
+
+dispgroup2.append(Label(h_font, text="TeleOp Scoring", color=HEX_WHITE, x=15, y=25)) #correct
+
+dispgroup2.append(Label(arial_12, text="Capped Tower?", color=HEX_WHITE, x=10, y=60)) #correct
+
+dispgroup2.append(Label(arial_12, text="Remove Base?", color=HEX_WHITE, x=10, y=110)) #correct
+
+dispgroup2.append(Label(arial_12, text="Triangle Park?", color=HEX_WHITE, x=10, y=160)) #correct
+
+dispgroup2.append(Label(arial_12, text="Stones Delived", color=HEX_WHITE, x=205, y=10)) #correct
+skStoneDeliv = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=27) #correct
+dispgroup2.append(skStoneDeliv)
+
+dispgroup2.append(Label(arial_12, text="Stones Placed", color=HEX_WHITE, x=205, y=85)) #correct
+rgStoneDeliv = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=102) #correct
+dispgroup2.append(rgStoneDeliv) 
+
+dispgroup2.append(Label(arial_12, text="Tower Level", color=HEX_WHITE, x=205, y=160)) #correct
+rgStoneDeliv = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=177) #correct
+dispgroup2.append(rgStoneDeliv)
+
 maingroup = displayio.Group(max_size=5) # if getting weird errors, increase max size
-maingroup.append(buttonsgroup1)
-maingroup.append(dispgroup1)
+maingroup.append(buttonsgroup2)
+maingroup.append(dispgroup2)
 
 
 
