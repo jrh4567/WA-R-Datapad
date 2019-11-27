@@ -27,8 +27,6 @@ other_font = cwd+"/fonts/Arial-ItalicMT-17.bdf"
 nunito_font = cwd+"/fonts/Nunito-Black-17.bdf"
 arial12 = cwd+"/fonts/Arial-12.bdf"
 
-#wolf_bg = cwd+"/HowlingWolf.bmp"
-
 print('loading fonts...')
 arial_16 = bitmap_font.load_font(medium_font)
 h_font = bitmap_font.load_font(header_font)
@@ -36,14 +34,44 @@ arial_o = bitmap_font.load_font(other_font)
 nunito = bitmap_font.load_font(nunito_font)
 arial_12 = bitmap_font.load_font(arial12)
 
-#wolf_sprite = displayio.TileGrid(bitmap = wolf_bg, pixel_shader =  0x000050)
+HEX_WHITE = 0xFFFFFF
+HEX_BLUE = 0x0000FF
+RED = (255, 0, 0)
+ORANGE = (255, 34, 0)
+YELLOW = (255, 170, 0)
+GREEN = (0, 255, 0)
+CYAN = (0, 255, 255)
+BLUE = (0, 0, 255)
+VIOLET = (153, 0, 255)
+MAGENTA = (255, 0, 51)
+PINK = (255, 51, 119)
+AQUA = (85, 125, 255)
+WHITE = (255, 255, 255)
+GRAY = (100, 100, 100)
+OFF = (0, 0, 0)
+BLACK = 0x0
 
+
+print("Loading...")
+loadingScreenGroup = displayio.Group(max_size=5)
+loading = Label(nunito, text="Loading,", color=HEX_WHITE, x=10, y=120)
+plsWait = Label(nunito, text="please wait...", color=HEX_WHITE, x=10, y=135)
+board.DISPLAY.show(loadingScreenGroup)
+#board.DISPLAY.show(loadingScreenGroup)
+#bufferGroup = displayio.Group(max_size=1)
+#board.DISPLAY.show(bufferGroup)
 with open("/HowlingWolf.bmp", "rb") as f:
     odb = displayio.OnDiskBitmap(f)
-    face = displayio.TileGrid(odb, pixel_shader=displayio.ColorConverter(), position=(0,0))
-    splash.append(face)
+    face = displayio.TileGrid(bitmap=odb, pixel_shader=displayio.ColorConverter()) #, position=(0,0))
+    loadingScreenGroup.append(face)
+    loadingScreenGroup.append(loading)
+    loadingScreenGroup.append(plsWait)
+    #board.DISPLAY.show(loadingScreenGroup)
     # Wait for the image to load.
     board.DISPLAY.wait_for_frame()
+
+loadingScreenGroup.append(Label(arial_12, text="FTC-Skysotne \nSeason", color=HEX_WHITE, x=220, y=125))
+loadingScreenGroup.append(Label(arial_12, text="Created By Whitefield Robotics (11127)", color=HEX_WHITE, x=10, y=232))
 
 dispelements = []
 dispbuttons = []
@@ -78,36 +106,11 @@ Parking in Building Site					= parkInSite
 #//////////////////////////////////////////////////////////////////////////////////////////
 
 
-HEX_WHITE = 0xFFFFFF
-HEX_BLUE = 0x0000FF
-RED = (255, 0, 0)
-ORANGE = (255, 34, 0)
-YELLOW = (255, 170, 0)
-GREEN = (0, 255, 0)
-CYAN = (0, 255, 255)
-BLUE = (0, 0, 255)
-VIOLET = (153, 0, 255)
-MAGENTA = (255, 0, 51)
-PINK = (255, 51, 119)
-AQUA = (85, 125, 255)
-WHITE = (255, 255, 255)
-GRAY = (100, 100, 100)
-OFF = (0, 0, 0)
-BLACK = 0x0
+
 
 # Set the background color
 BACKGROUND_COLOR = 0x000000
 
-print("Loading...")
-loadingscreen = Label(nunito, text="Loading, please wait...", color=HEX_WHITE, x=10, y=120)
-lSVersionInfo = Label(arial_12, text="FTC-Skysotne Season", color=HEX_WHITE, x=10, y=150)
-lSCredits = Label(arial_12, text="Created By Whitefield Robotics (11127)", color=HEX_WHITE, x=10, y=180)
-loadingScreenGroup = displayio.Group(max_size=4)
-loadingScreenGroup.append(wolf_bg)
-loadingScreenGroup.append(loadingscreen)
-loadingScreenGroup.append(lSVersionInfo)
-loadingScreenGroup.append(lSCredits)
-board.DISPLAY.show(loadingScreenGroup)
 
 #dpm = datapadHelper(11) #can't import other file b/c of memory limits
 #dpm.ext_print_test()
