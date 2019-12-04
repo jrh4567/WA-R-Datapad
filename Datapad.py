@@ -60,6 +60,8 @@ board.DISPLAY.show(loadingScreenGroup)
 #board.DISPLAY.show(loadingScreenGroup)
 #bufferGroup = displayio.Group(max_size=1)
 #board.DISPLAY.show(bufferGroup)
+
+
 with open("/HowlingWolf.bmp", "rb") as f:
     odb = displayio.OnDiskBitmap(f)
     face = displayio.TileGrid(bitmap=odb, pixel_shader=displayio.ColorConverter()) #, position=(0,0))
@@ -80,6 +82,8 @@ superdict = {}
 
 matchid = 0
 teamid = 0
+
+delay = 0.1
 #/////////////Make Sure these are correct at the beginning of season////////////////////////
 numStats = 11
 columnHeaders = "TEAM_NUM,MATCH,rePosBase,delivSkySt,delivRegSt,placeSt_A,parkOnTape,delivTele,placeSt,towerLevel,capTower,removeBase,parkInSite"
@@ -145,6 +149,7 @@ keypadSpots = [
 	{'id': "7", 'pos': (10, 50), 'size': (75, 40), 'color': WHITE, 'label': "7"},
 	{'id': "8", 'pos': (95, 50), 'size': (75, 40), 'color': WHITE, 'label': "8"},
 	{'id': "9", 'pos': (180, 50), 'size': (75, 40), 'color': WHITE, 'label': "9"},
+	#{'id': "N", 'pos': (260, 150), 'size': (75, 40), 'color': WHITE, 'label': "N"},
 	{'id': "clear", 'pos': (180, 200), 'size': (75, 40), 'color': WHITE, 'label': "C"},
 	{'id': "acc", 'pos': (260, 200), 'size': (75, 40), 'color': GREEN, 'label': "A"},
 ]
@@ -198,9 +203,10 @@ def changeLabelColor():
 
 
 """ INITing main disp elements """
-
+#rePosBase: 95, 50
+#nextpage: 10, 200
 spots = [
-	#PAGE 1
+	#PAGE 16
 	{'id': "nextpage",		'Type': 'select',	 'pos': (10, 200), 'size': (70, 45), 'color': GREEN, 'label': "Next"}, #correct
 	
 	{'id': "rePosBase",		'Type': 'boolean',	 'pos': (95, 50), 'size': (70, 50), 'color': GRAY, 'label': "False"}, #correct
@@ -217,23 +223,23 @@ spots = [
 	{'id': "placeSt_A-",	'Type': 'int',		 'pos': (200, 185), 'size': (60, 40), 'color': RED, 'label': "-1"}, #correct
 	
 	#PAGE 2
-	{'id': "back",			'Type': 'select',	 'pos': (10, 200), 'size': (70, 45), 'color': RED, 'label': "Back"},
-	{'id': "write",			'Type': 'eject',	 'pos': (85, 200), 'size': (70, 45), 'color': GREEN, 'label': "Write"},
+	{'id': "back",			'Type': 'select',	 'pos': (10, 200), 'size': (70, 40), 'color': RED, 'label': "Back"}, #correct
+	{'id': "write",			'Type': 'eject',	 'pos': (85, 200), 'size': (70, 45), 'color': GREEN, 'label': "Write"}, #correct
 	
-	{'id': "capTower",		'Type': 'boolean',	 'pos': (100, 45), 'size': (70, 45), 'color': GRAY, 'label': "False"},
+	{'id': "capTower",		'Type': 'boolean',	 'pos': (100, 45), 'size': (70, 45), 'color': GRAY, 'label': "False"}, #correct
 	
-	{'id': "removeBase",	'Type': 'boolean',	 'pos': (100, 95), 'size': (70, 45), 'color': GRAY, 'label': "False"},
+	{'id': "removeBase",	'Type': 'boolean',	 'pos': (100, 95), 'size': (70, 45), 'color': GRAY, 'label': "False"}, #correct
 	
-	{'id': "parkInSite",	'Type': 'boolean',	 'pos': (100, 145), 'size': (70, 45), 'color': GRAY, 'label': "False"},
+	{'id': "parkInSite",	'Type': 'boolean',	 'pos': (100, 145), 'size': (70, 45), 'color': GRAY, 'label': "False"}, #correct
 	
-	{'id': "delivTele+",	'Type': 'int',		 'pos': (260, 35), 'size': (60, 40), 'color': BLUE, 'label': "+1"},
-	{'id': "delivTele-",	'Type': 'int',		 'pos': (200, 35), 'size': (60, 40), 'color': RED, 'label': "-1"},
+	{'id': "delivTele+",	'Type': 'int',		 'pos': (260, 35), 'size': (60, 40), 'color': BLUE, 'label': "+1"}, #correct
+	{'id': "delivTele-",	'Type': 'int',		 'pos': (200, 35), 'size': (60, 40), 'color': RED, 'label': "-1"}, #correct
 	
-	{'id': "placeSt+",		'Type': 'int',		 'pos': (260, 110), 'size': (60, 40), 'color': BLUE, 'label': "+1"},
-	{'id': "placeSt-",		'Type': 'int',		 'pos': (200, 110), 'size': (60, 40), 'color': RED, 'label': "-1"},
+	{'id': "placeSt+",		'Type': 'int',		 'pos': (260, 110), 'size': (60, 40), 'color': BLUE, 'label': "+1"}, #correct
+	{'id': "placeSt-",		'Type': 'int',		 'pos': (200, 110), 'size': (60, 40), 'color': RED, 'label': "-1"}, #correct
 	
-	{'id': "towerLevel+",	'Type': 'int',		 'pos': (260, 185), 'size': (60, 40), 'color': BLUE, 'label': "+1"},
-	{'id': "towerLevel-",	'Type': 'int',		 'pos': (200, 185), 'size': (60, 40), 'color': RED, 'label': "-1"},
+	{'id': "towerLevel+",	'Type': 'int',		 'pos': (260, 185), 'size': (60, 40), 'color': BLUE, 'label': "+1"}, #correct
+	{'id': "towerLevel-",	'Type': 'int',		 'pos': (200, 185), 'size': (60, 40), 'color': RED, 'label': "-1"}, #correct
 	]
 
 page1 = ["nextpage", "rePosBase", "delivSkySt+", "delivSkySt-", "delivRegSt+", "delivRegSt-", "placeSt_A+", "placeSt_A-", "parkOnTape"]
@@ -243,6 +249,8 @@ buttonsgroup1 = displayio.Group(max_size=len(page1))
 buttonsgroup2 = displayio.Group(max_size=len(page2) + 1)
 
 buttons = []
+buttonsAuto = []
+buttonsTele = []
 for spot in spots:
     button = Button(x=spot['pos'][0], y=spot['pos'][1],
                     width=spot['size'][0], height=spot['size'][1],
@@ -251,9 +259,11 @@ for spot in spots:
                     name=spot['id'],label=spot['label'], label_font=arial_16)
     buttons.append(button)
     if spot['id'] in page1:
+        buttonsAuto.append(button)
         buttonsgroup1.append(button.group)
         print("Adding {} to pg1".format(spot))
     else:
+        buttonsTele.append(button)
         buttonsgroup2.append(button.group)
         print("Adding {} to pg2".format(spot))
 
@@ -302,10 +312,13 @@ dispgroup2.append(Label(arial_12, text="Tower Level", color=HEX_WHITE, x=205, y=
 rgStoneDeliv = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=177) #correct
 dispgroup2.append(rgStoneDeliv)
 
-maingroup = displayio.Group(max_size=5) # if getting weird errors, increase max size
-maingroup.append(buttonsgroup2)
-maingroup.append(dispgroup2)
+autoGroup = displayio.Group(max_size=5)
+autoGroup.append(buttonsgroup1)
+autoGroup.append(dispgroup1)
 
+teleGroup = displayio.Group(max_size=5)
+teleGroup.append(buttonsgroup2)
+teleGroup.append(dispgroup2)
 
 
 maindict = {
@@ -391,23 +404,39 @@ def matrix_write():
 	print("Superdict:", superdict)
 
 
-def increment(value, condition, changeValue, direction, amount):
-	#if value (button.name) == condition (the name of the value) then change the changeValue (maindict["str"]) in the direction by amount
-	if value == condition:
-		changeValue += amount
-		print(changeValue)
+def handleButton(button):
+	if button.name[len(button.name)-1:] in ["+", "-"]:
+		type = "int"
+	else:
+		type = "boolean"
 	
+	if type == "int":
+		dictName = button.name[:len(button.name)-1]
+		if button.name[len(button.name)-1:] == "+":
+			maindict[dictName] += 1
+			print(dictName, maindict[dictName])
+		elif button.name[len(button.name)-1:] == "-":
+			maindict[dictName] -= 1
+			print(dictName, maindict[dictName])
+	
+	if type == "boolean":
+		maindict[button.name] = not(maindict[button.name])
+		print(button.name, maindict[button.name])
+		
+
 #inPreMainLoop = 1
+bypassKeyboard = False
 print("Beginning Superloop")
 while True:
-
-	timesPressed = 0
-	timesPressedMax = 5 #change to "2" for matchid
-	inPreMainLoop = 1 #change to "2" for matchid
-	board.DISPLAY.show(preMainGroup)
-	k_update_display()
-	print("Starting preMain Loop")
-	changeLabelColor()
+	
+	if bypassKeyboard == False:
+		timesPressed = 0
+		timesPressedMax = 5 #change to "2" for matchid
+		inPreMainLoop = 1 #change to "2" for matchid
+		board.DISPLAY.show(preMainGroup)
+		k_update_display()
+		print("Starting preMain Loop")
+		changeLabelColor()
 	while inPreMainLoop > 0:
 		touch = ts.touch_point
 		if touch:
@@ -443,65 +472,71 @@ while True:
 		
 					k_update_display()
 					break
-		time.sleep(0.05)
-
-	inMainLoop = True
-	board.DISPLAY.show(maingroup)
+		time.sleep(delay)
+	
+	inAutoLoop = True
+	board.DISPLAY.show(autoGroup)
 	update_display()
-	print("Starting Main Loop")  
-	while inMainLoop:
+	print("Starting Auto Loop")
+	while inAutoLoop:
 		touch = ts.touch_point
 		if touch:
-			for button in buttons:
+			for button in buttonsAuto:
 				if button.contains(touch):
 					print("Touched", button.name)
 					lastPressed = button.name
+					
+					if button.name == "nextpage":
+						inAutoLoop = False
+						print("Broke autoLoop")
+						
+					else:
+						handleButton(button)
+					
+						
+					update_display()
+					break
+		time.sleep(delay)
+		
+	print("Starting Tele Loop")
+	inTeleLoop = True
+	board.DISPLAY.show(teleGroup)
+	while inTeleLoop:
+		touch = ts.touch_point
+		if touch:
+			#print("touched screen")
+			for button in buttonsTele:
+				if button.contains(touch):
+					print("Touched", button.name)
+					lastPressed = button.name
+					
 					if button.name == "write":   
 						matrix_write()
 						sd_write()
 						inMainLoop = False
-						'''
-					if button.name == "1":
-						maindict["pCtDepot"] = maindict["pCtDepot"] + 1
-						print(maindict["pCtDepot"])
+						bypassKeyboard = False
+						print("Data written")
 					
-					elif button.name == "2":
-						maindict["pCtDepot"] = maindict["pCtDepot"] - 1
-						print(maindict["pCtDepot"])
-					
-					elif button.name == "5":
-						maindict["pCtLander"] = maindict["pCtLander"] + 1
-						print(maindict["pCtLander"])
-					
-					elif button.name == "6":
-						maindict["pCtLander"] = maindict["pCtLander"] - 1
-						print(maindict["pCtLander"])
-					
-					
-					elif button.name == "3":
-						if maindict["toggleDrop"] == False:
-							maindict["toggleDrop"] = True
-						else:
-							maindict["toggleDrop"] = False
-						print(maindict["toggleDrop"]) 
-					
-					elif button.name == "4":
-						if maindict["toggleSample"] == False:
-							maindict["toggleSample"] = True
-						else:
-							maindict["toggleSample"] = False
-						print(maindict["toggleSample"]) 
-						'''
-					
-				update_display()
-				break
-		time.sleep(0.05)
-	
-	matchid += 1
-	teamid = 0
-	maindict = {
-		"pCtDepot": 0,
-		"pCtLander": 0,
-		"toggleDrop": False,
-		"toggleSample": False
-	}
+					elif button.name == "back":
+						inAutoLoop = True
+						inTeleLoop = False
+						bypassKeyboard = True
+						print("Returning to autoLoop")
+						
+					else:
+						handleButton(button)
+						
+						
+					update_display()
+					break
+		time.sleep(delay)
+		
+	if bypassKeyboard == False:
+		matchid += 1
+		teamid = 0
+		maindict = {
+			"pCtDepot": 0,
+			"pCtLander": 0,
+			"toggleDrop": False,
+			"toggleSample": False
+		}
