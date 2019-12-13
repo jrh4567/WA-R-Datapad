@@ -97,3 +97,51 @@ def display_update_all():
 		tf2.label = "False"
 	board.DISPLAY.refresh_soon()
 		
+
+
+
+dispgroup1.append(Label(nunito, text="Autonomous Scoring", color=HEX_WHITE, x=15, y=25)) #correct
+
+dispgroup1.append(Label(arial_12, text="Moved Base?", color=HEX_WHITE, x=10, y=75)) #correct
+
+dispgroup1.append(Label(arial_12, text="parkOnTape?", color=HEX_WHITE, x=10, y=133)) #correct
+
+dispgroup1.append(Label(arial_12, text="Skystones Delived", color=HEX_WHITE, x=205, y=10)) #correct
+delivSkyStLabel = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=27) #correct
+dispgroup1.append(delivSkyStLabel)
+
+dispgroup1.append(Label(arial_12, text="Reg Stones Delived", color=HEX_WHITE, x=205, y=85)) #correct
+delivRegStLabel = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=102) #correct
+dispgroup1.append(delivRegStLabel) 
+
+dispgroup1.append(Label(arial_12, text="Stones Placed", color=HEX_WHITE, x=205, y=160)) #correct
+placeSt_ALabel = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=177) #correct
+dispgroup1.append(placeSt_ALabel)
+
+print("RAM (post-dispgroup1): ", gc.mem_free())
+print("Allocated RAM: ", gc.mem_alloc())
+
+dispgroup2 = displayio.Group(max_size=10)
+
+dispgroup2.append(Label(nunito, text="TeleOp Scoring", color=HEX_WHITE, x=15, y=25)) #correct
+
+dispgroup2.append(Label(arial_12, text="Capped Tower?", color=HEX_WHITE, x=10, y=60)) #correct
+
+dispgroup2.append(Label(arial_12, text="Remove Base?", color=HEX_WHITE, x=10, y=110)) #correct
+
+dispgroup2.append(Label(arial_12, text="Triangle Park?", color=HEX_WHITE, x=10, y=160)) #correct
+
+dispgroup2.append(Label(arial_12, text="Stones Delived", color=HEX_WHITE, x=205, y=10)) #correct
+delivTeleLabel = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=27) #correct
+dispgroup2.append(delivTeleLabel)
+
+dispgroup2.append(Label(arial_12, text="Stones Placed", color=HEX_WHITE, x=205, y=85)) #correct
+placeStLabel = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=102) #correct
+dispgroup2.append(placeStLabel) 
+
+dispgroup2.append(Label(arial_12, text="Tower Level", color=HEX_WHITE, x=205, y=160)) #correct
+towerLevelLabel = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=177) #correct
+dispgroup2.append(towerLevelLabel)
+
+print("RAM (post-dispgroup2): ", gc.mem_free())
+print("Allocated RAM: ", gc.mem_alloc())
