@@ -1,40 +1,40 @@
 #Created by Jackson Holbrook for Whitefield Robotics, FTC team 11127
-#Match data input has been commented out or changed by other notation, as its not actually necessary, or used at all.
-#time.sleep("Memes") #instant kill
 import time
 import board
 import displayio
 from adafruit_pyportal import PyPortal
 from adafruit_button import Button
 from adafruit_display_text.label import Label
+# from adafruit_display_text import bitmap_label
 from adafruit_bitmap_font import bitmap_font
 from terminalio import FONT
 import adafruit_sdcard
-import os
+# import os
 import digitalio
 import busio
 import storage
 import adafruit_touchscreen
 import gc
-#from datapad_methods import datapadHelper #can't import other file b/c of memory limits
+
 gc.enable()
 print("Total Free RAM: ", gc.mem_free())
 print("Total Allocated RAM: ", gc.mem_alloc())
 cwd = ("/"+__file__).rsplit('/', 1)[0] # the current working directory (where this file is)
 
 # Fonts within /fonts folder
-medium_font = cwd+"/fonts/Arial-16.bdf"
-header_font = cwd+"/fonts/Collegiate-24.bdf"
-#other_font = cwd+"/fonts/Arial-ItalicMT-17.bdf"
-nunito_font = cwd+"/fonts/Nunito-Black-17.bdf"
-arial12 = cwd+"/fonts/Arial-12.bdf"
+# medium_font = cwd+"/fonts/Arial-16.bdf"
+# header_font = cwd+"/fonts/Collegiate-24.bdf"
+# #other_font = cwd+"/fonts/Arial-ItalicMT-17.bdf"
+# nunito_font = cwd+"/fonts/Nunito-Black-17.bdf"
+# arial12 = cwd+"/fonts/Arial-12.bdf"
 
 print('loading fonts...')
-arial_16 = bitmap_font.load_font(medium_font)
-h_font = bitmap_font.load_font(header_font)
+# arial_16 = bitmap_font.load_font(cwd+"/fonts/Arial-16.bdf")
+# h_font = bitmap_font.load_font(cwd+"/fonts/Collegiate-24.bdf")
 #arial_o = bitmap_font.load_font(other_font)
-nunito = bitmap_font.load_font(nunito_font)
-arial_12 = bitmap_font.load_font(arial12)
+nunito = bitmap_font.load_font(cwd+"/fonts/Nunito-Black-17.bdf")
+arial_12 = bitmap_font.load_font(cwd+"/fonts/Arial-12.bdf")
+defFont = FONT
 
 print("RAM (post-fonts load): ", gc.mem_free())
 
@@ -45,7 +45,6 @@ GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 WHITE = (255, 255, 255)
 GRAY = (100, 100, 100)
-OFF = (0, 0, 0)
 BLACK = 0x0
 
 
@@ -69,7 +68,7 @@ with open("/HowlingWolf.bmp", "rb") as f:
     loadingScreenGroup.append(plsWait)
     #board.DISPLAY.show(loadingScreenGroup)
     # Wait for the image to load.
-    board.DISPLAY.wait_for_frame()
+    board.DISPLAY.refresh()
 gc.collect()
 print("RAM (after wolf load): ", gc.mem_free())
 
@@ -84,34 +83,41 @@ superdict = {}
 matchid = 0
 teamid = 0
 
-delay = 0.01
+delay = 0.25
 #/////////////Make Sure these are correct at the beginning of season////////////////////////
-numStats = 12
-columnHeaders = "TEAM_NUM,MATCH,rePosBase,delivSkySt,delivRegSt,placeSt_A,parkOnTape,delivTele,placeSt,towerLevel,capTower,capLevel,removeBase,parkInSite"
-
+columnHeaders = "autoDuck,parkSquare,parkWarehouse,complParked,correctLevel,usedTSE,autoSq,autoShipHub,shipSq,shipLvl1,shipLvl2,shipLvl3,shipShared,duckCt,hubBalanced,sharedTipped,endPark,compEndPark,hubCapped"
+autoTeleSplit = 8 #index of the FIRST TELEOP ITEM
 ''' 
-Repositioning Foundation to Building Site	= rePosBase
-Delivering Skystones 						= delivSkySt
-Delivering Stones under Alliance Skybridge	= delivRegSt
-Placing Stones on Foundation 				= placeSt_A
-Navigating under Skybridge					= parkOnTape
+Delivering duck in auto - autoDuck
+Parked in Alliance Storage Unit - parkSquare
+Parked in Warehouse - parkWarehouse
+Completely parked (*2 multiplier) - complParked
+Placed block on correct level - correctLevel
+used Team Scoring Element - usedTSE
+Freight in Square - autoSq
+Freight on Hub (any position) - autoShipHub
 
-Driver-Controlled Period Scoring:
-Delivering Stones under Alliance Skybridge 	= delivTele
-Placing Stones on Foundation				= placeSt
-Skyscraper Bonus							= towerLevel
+Freight in Square - shipSq
+Freight on hub:
+	level 1 (lowest) - shipLvl1
+	level 2 (mid) - shipLvl2
+	level 3 (top) - shipLvl3
+Freight on Shared Hub - shipShared
+Ducks delivered: duckCt
+Alliance Hub Balanced - hubBalanced
+Shared Hub tipped - sharedTipped
+Parked in warehouse - endPark
+Completely Parked in Warehouse - compEndPark
+Alliance Hub Capped - hubCapped
 
-End Game Scoring:
-Capping Bonus								= capTower
-Level Bonus 								= capLevel
-Moving Foundation from Building Site 		= removeBase
-Parking in Building Site					= parkInSite
 
 '''
 #//////////////////////////////////////////////////////////////////////////////////////////
 
-
-
+statList = []
+for stat in columnHeaders.split(","):
+	statList.append(stat)
+numStats = len(statList)
 
 # Set the background color
 BACKGROUND_COLOR = 0x000000
@@ -126,8 +132,8 @@ cs = digitalio.DigitalInOut(board.SD_CS)
 sdcard = adafruit_sdcard.SDCard(spi, cs)
 vfs = storage.VfsFat(sdcard)
 storage.mount(vfs, "/sd")
-print("SD Card Directories: ")
-print(os.listdir('/sd'))
+# print("SD Card Directories: ")
+# print(os.listdir('/sd'))
 
 print("Initializing touchscreen")
 ts = adafruit_touchscreen.Touchscreen(board.TOUCH_XL, board.TOUCH_XR,
@@ -158,30 +164,31 @@ keypadSpots = [
 keypadGroup = displayio.Group(max_size=15)
 
 kbuttons = []
-for spot in keypadSpots:
+for spot in keypadSpots: #create displayio buttons with the keypadSpots matrix, then add them to an array
     button = Button(x=spot['pos'][0], y=spot['pos'][1],
                     width=spot['size'][0], height=spot['size'][1],
-                    style=Button.ROUNDRECT,
+                    style=Button.RECT,
                     fill_color=spot['color'], outline_color=0x222222,
-                    name=spot['id'],label=spot['label'], label_font=arial_16)
+                    name=spot['id'],label=spot['label'], label_font=arial_12)
     kbuttons.append(button)
     keypadGroup.append(button.group)
-    print("Adding {} to kButtons".format(spot))
+#     print("Adding {} to kButtons".format(spot))
+del keypadSpots
+gc.collect()
 
-
-preMainGroup = displayio.Group(max_size=5) # if getting weird errors, increase max size
+preMainGroup = displayio.Group(max_size=5)
 preMainGroup.append(keypadGroup)
 
-#matchIdLabelText = Label(arial_16, text="Match ID:", color=HEX_WHITE, x=10, y=30)  #uncomment for matchid
+#matchIdLabelText = Label(arial_12, text="Match ID:", color=HEX_WHITE, x=10, y=30)  #uncomment for matchid
 #preMainGroup.append(matchIdLabelText)  #uncomment for matchid
 
-#matchIdLabel = Label(arial_16, text="00", color=HEX_WHITE, x=110, y=30) #uncomment for matchid
+#matchIdLabel = Label(arial_12, text="00", color=HEX_WHITE, x=110, y=30) #uncomment for matchid
 #preMainGroup.append(matchIdLabel)  #uncomment for matchid
 
-teamIdLabelText = Label(arial_16, text="Team ID:", color=HEX_WHITE, x=155, y=30)
+teamIdLabelText = Label(defFont, text="Team ID:", color=HEX_WHITE, x=100, y=30, scale=2)
 preMainGroup.append(teamIdLabelText)
 
-teamIdLabel = Label(arial_16, text="00000", color=HEX_WHITE, x=255, y=30)
+teamIdLabel = Label(defFont, text="00000", color=HEX_WHITE, x=200, y=30, scale=2)
 preMainGroup.append(teamIdLabel)
 
 
@@ -191,7 +198,9 @@ def k_update_display():
     """Update the display with current info."""
     #matchIdLabel.text = "{00}".format(matchid)  #uncomment for matchid
     teamIdLabel.text = "{00000}".format(teamid)    
-    board.DISPLAY.refresh_soon()
+    board.DISPLAY.refresh()
+    time.sleep(delay)
+    gc.collect()
 
 print("RAM (after keypad init, pre-spots): ", gc.mem_free())
 print("Allocated RAM: ", gc.mem_alloc())
@@ -199,129 +208,212 @@ print("Allocated RAM: ", gc.mem_alloc())
 """ INITing main disp elements """
 #rePosBase: 95, 50
 #nextpage: 10, 200
-spots = [
-	#PAGE 16
-	{'id': "nextpage",		'Type': 'select',	 'pos': (10, 200), 'size': (70, 45), 'color': GREEN, 'label': "Next"}, #correct
+
+tfColumnOffset = 35
+intColumnOffset = 35
+leftColx = 50
+leftColy = 25
+rightColx = 130 #200
+rightColy = 5 #10
+bp = { #bp = buttonPos
+	"nextPage": (225, 190),
+	"autoDuck": (leftColx, leftColy + 0*tfColumnOffset),
+	"parkSquare": (leftColx, leftColy + 1*tfColumnOffset),
+	"parkWarehouse": (leftColx, leftColy + 2*tfColumnOffset),
+	"complParked": (leftColx, leftColy + 3*tfColumnOffset),
+	"correctLevel": (leftColx, leftColy + 4*tfColumnOffset),
+	"usedTSE": (leftColx, leftColy + 5*tfColumnOffset),
 	
-	{'id': "rePosBase",		'Type': 'boolean',	 'pos': (95, 50), 'size': (70, 50), 'color': GRAY, 'label': "False"}, #correct
+	"autoSq": (rightColx, 10), #leftColy + 1*45), #For the integer buttons, this coord is the top-left of the label, and everything else is based on this
+	"autoShipHub": (rightColx, 10 + 50),
 	
-	{'id': "parkOnTape",	'Type': 'boolean',	 'pos': (95, 110), 'size': (70, 50), 'color': GRAY, 'label': "False"}, #correct
 	
-	{'id': "delivSkySt+",	'Type': 'int',		 'pos': (260, 35), 'size': (60, 40), 'color': BLUE, 'label': "+1"}, #correct
-	{'id': "delivSkySt-",	'Type': 'int',		 'pos': (200, 35), 'size': (60, 40), 'color': RED, 'label': "-1"}, #correct
+	"hubBalanced": (leftColx, leftColy + 0*tfColumnOffset),
+	"sharedTipped": (leftColx, leftColy + 1*tfColumnOffset),
+	"endPark": (leftColx, leftColy + 2*tfColumnOffset),
+	"compEndPark": (leftColx, leftColy + 3*tfColumnOffset),
+	"hubCapped": (leftColx, leftColy + 4*tfColumnOffset),
 	
-	{'id': "delivRegSt+",	'Type': 'int',		 'pos': (260, 110), 'size': (60, 40), 'color': BLUE, 'label': "+1"}, #correct
-	{'id': "delivRegSt-",	'Type': 'int',		 'pos': (200, 110), 'size': (60, 40), 'color': RED, 'label': "-1"}, #correct
+	"duckCt": (rightColx, rightColy + 0*intColumnOffset),
+	"shipLvl3": (rightColx, rightColy + 1*intColumnOffset),
+	"shipLvl2": (rightColx, rightColy + 2*intColumnOffset),
+	"shipLvl1": (rightColx, rightColy + 3*intColumnOffset),
+	"shipShared": (rightColx, rightColy + 4*intColumnOffset),
+	"shipSq": (rightColx, rightColy + 5*intColumnOffset),
+}
+del tfColumnOffset, intColumnOffset, leftColx, leftColy, rightColx, rightColy
+gc.collect()
+
+tfButtonSize = (60, 30)
+
+intButtonOffset = 0 #10
+intButtonXOffset = 61
+intBothXOffset = 65
+spots = [ # An Array of Dictionaries. I recommend using find+replace to change all the strings to their new values, especially for the int buttons. 
+	#PAGE 1 - AUTONOMOUS
+	{'id': "nextpage",		'pos': bp["nextPage"], 'size': (70, 45), 'color': GREEN, 'label': "Next"}, 
 	
-	{'id': "placeSt_A+",	'Type': 'int',		 'pos': (260, 185), 'size': (60, 40), 'color': BLUE, 'label': "+1"}, #correct
-	{'id': "placeSt_A-",	'Type': 'int',		 'pos': (200, 185), 'size': (60, 40), 'color': RED, 'label': "-1"}, #correct
+	{'id': "autoDuck",	 	'pos': bp["autoDuck"], 'size': tfButtonSize, 'color': GRAY, 'label': "False"}, 
 	
-	#PAGE 2
-	{'id': "back",			'Type': 'select',	 'pos': (10, 200), 'size': (70, 40), 'color': RED, 'label': "Back"}, #correct
-	{'id': "write",			'Type': 'eject',	 'pos': (85, 200), 'size': (70, 45), 'color': GREEN, 'label': "Write"}, #correct
+	{'id': "parkSquare", 	'pos': bp["parkSquare"], 'size': tfButtonSize, 'color': GRAY, 'label': "False"},
 	
-	{'id': "capTower",		'Type': 'boolean',	 'pos': (100, 45), 'size': (70, 45), 'color': GRAY, 'label': "False"}, #correct
+	{'id': "parkWarehouse", 'pos': bp["parkWarehouse"], 'size': tfButtonSize, 'color': GRAY, 'label': "False"},
 	
-	{'id': "removeBase",	'Type': 'boolean',	 'pos': (100, 95), 'size': (70, 45), 'color': GRAY, 'label': "False"}, #correct
+	{'id': "complParked", 	'pos': bp["complParked"], 'size': tfButtonSize, 'color': GRAY, 'label': "False"},
 	
-	{'id': "parkInSite",	'Type': 'boolean',	 'pos': (100, 145), 'size': (70, 45), 'color': GRAY, 'label': "False"}, #correct
+	{'id': "correctLevel", 	'pos': bp["correctLevel"], 'size': tfButtonSize, 'color': GRAY, 'label': "False"},
 	
-	{'id': "delivTele+",	'Type': 'int',		 'pos': (260, 18), 'size': (60, 40), 'color': BLUE, 'label': "+1"}, #correct
-	{'id': "delivTele-",	'Type': 'int',		 'pos': (200, 18), 'size': (60, 40), 'color': RED, 'label': "-1"}, #correct
+	{'id': "usedTSE",	 	'pos': bp["usedTSE"], 'size': tfButtonSize, 'color': GRAY, 'label': "False"},
 	
-	{'id': "placeSt+",		'Type': 'int',		 'pos': (260, 75), 'size': (60, 40), 'color': BLUE, 'label': "+1"}, #correct
-	{'id': "placeSt-",		'Type': 'int',		 'pos': (200, 75), 'size': (60, 40), 'color': RED, 'label': "-1"}, #correct
 	
-	{'id': "towerLevel+",	'Type': 'int',		 'pos': (260, 132), 'size': (60, 40), 'color': BLUE, 'label': "+1"}, #correct
-	{'id': "towerLevel-",	'Type': 'int',		 'pos': (200, 132), 'size': (60, 40), 'color': RED, 'label': "-1"}, #correct
+	{'id': "autoSq+",	'pos': (bp["autoSq"][0] + intBothXOffset + intButtonXOffset, bp["autoSq"][1] + intButtonOffset), 'size': (60, 30), 'color': BLUE, 'label': "+1"}, 
+	{'id': "autoSq-",	'pos': (bp["autoSq"][0] + intBothXOffset, bp["autoSq"][1] + intButtonOffset), 'size': (60, 30), 'color': RED, 'label': "-1"}, 
 	
-	{'id': "capLevel+",		'Type': 'int',		 'pos': (260, 189), 'size': (60, 40), 'color': BLUE, 'label': "+1"}, #correct
-	{'id': "capLevel-",		'Type': 'int',		 'pos': (200, 189), 'size': (60, 40), 'color': RED, 'label': "-1"}, #correct
+	{'id': "autoShipHub+",	'pos': (bp["autoShipHub"][0] + intBothXOffset + intButtonXOffset, bp["autoShipHub"][1] + intButtonOffset), 'size': (60, 30), 'color': BLUE, 'label': "+1"}, 
+	{'id': "autoShipHub-",	'pos': (bp["autoShipHub"][0] + intBothXOffset, bp["autoShipHub"][1] + intButtonOffset), 'size': (60, 30), 'color': RED, 'label': "-1"}, 
+	
+	#PAGE 2 - TELEOP
+	{'id': "back",			'pos': (10, 200), 'size': (70, 40), 'color': RED, 'label': "Back"}, 
+	{'id': "write",		 	'pos': (85, 200), 'size': (70, 45), 'color': GREEN, 'label': "Write"}, 
+	
+	{'id': "hubBalanced",	'pos': bp["hubBalanced"], 'size': tfButtonSize, 'color': GRAY, 'label': "False"}, 
+	
+	{'id': "sharedTipped", 	'pos': bp["sharedTipped"], 'size': tfButtonSize, 'color': GRAY, 'label': "False"},
+	
+	{'id': "endPark", 		'pos': bp["endPark"], 'size': tfButtonSize, 'color': GRAY, 'label': "False"},
+	
+	{'id': "compEndPark", 	'pos': bp["compEndPark"], 'size': tfButtonSize, 'color': GRAY, 'label': "False"},
+	
+	{'id': "hubCapped", 	'pos': bp["hubCapped"], 'size': tfButtonSize, 'color': GRAY, 'label': "False"},
+	
+	{'id': "duckCt+",	'pos': (bp["duckCt"][0] + intBothXOffset + intButtonXOffset, bp["duckCt"][1] + intButtonOffset), 'size': (60, 30), 'color': BLUE, 'label': "+1"}, 
+	{'id': "duckCt-",	'pos': (bp["duckCt"][0] + intBothXOffset, bp["duckCt"][1] + intButtonOffset), 'size': (60, 30), 'color': RED, 'label': "-1"},
+	
+	{'id': "shipLvl3+",	'pos': (bp["shipLvl3"][0] + intBothXOffset + intButtonXOffset, bp["shipLvl3"][1] + intButtonOffset), 'size': (60, 30), 'color': BLUE, 'label': "+1"}, 
+	{'id': "shipLvl3-",	'pos': (bp["shipLvl3"][0] + intBothXOffset, bp["shipLvl3"][1] + intButtonOffset), 'size': (60, 30), 'color': RED, 'label': "-1"}, 
+	
+	{'id': "shipLvl2+",	'pos': (bp["shipLvl2"][0] + intBothXOffset + intButtonXOffset, bp["shipLvl2"][1] + intButtonOffset), 'size': (60, 30), 'color': BLUE, 'label': "+1"}, 
+	{'id': "shipLvl2-",	'pos': (bp["shipLvl2"][0] + intBothXOffset, bp["shipLvl2"][1] + intButtonOffset), 'size': (60, 30), 'color': RED, 'label': "-1"}, 
+	
+	{'id': "shipLvl1+",	'pos': (bp["shipLvl1"][0] + intBothXOffset + intButtonXOffset, bp["shipLvl1"][1] + intButtonOffset), 'size': (60, 30), 'color': BLUE, 'label': "+1"}, 
+	{'id': "shipLvl1-",	'pos': (bp["shipLvl1"][0] + intBothXOffset, bp["shipLvl1"][1] + intButtonOffset), 'size': (60, 30), 'color': RED, 'label': "-1"},
+	
+	{'id': "shipShared+",	'pos': (bp["shipShared"][0] + intBothXOffset + intButtonXOffset, bp["shipShared"][1] + intButtonOffset), 'size': (60, 30), 'color': BLUE, 'label': "+1"}, 
+	{'id': "shipShared-",	'pos': (bp["shipShared"][0] + intBothXOffset, bp["shipShared"][1] + intButtonOffset), 'size': (60, 30), 'color': RED, 'label': "-1"},
+	
+	{'id': "shipSq+",	'pos': (bp["shipSq"][0] + intBothXOffset + intButtonXOffset, bp["shipSq"][1] + intButtonOffset), 'size': (60, 30), 'color': BLUE, 'label': "+1"}, 
+	{'id': "shipSq-",	'pos': (bp["shipSq"][0] + intBothXOffset, bp["shipSq"][1] + intButtonOffset), 'size': (60, 30), 'color': RED, 'label': "-1"}, 
 	]
 
 print("RAM (post-spots): ", gc.mem_free())
 print("Allocated RAM: ", gc.mem_alloc())
-page1 = ["nextpage", "rePosBase", "delivSkySt+", "delivSkySt-", "delivRegSt+", "delivRegSt-", "placeSt_A+", "placeSt_A-", "parkOnTape"]
-page2 = ["back", "write", "delivTele+", "delivTele-", "placeSt+", "placeSt-", "towerLevel+", "towerLevel-", "capLevel+", "capLevel-", "capTower", "removeBase", "parkInSite"]
 
-buttonsgroup1 = displayio.Group(max_size=len(page1))
-buttonsgroup2 = displayio.Group(max_size=len(page2) + 1)
+# I really don't feel like taking the time to actually copy/paste all of those
+page1 = ["nextpage"] #, "rePosBase", "delivSkySt+", "delivSkySt-", "delivRegSt+", "delivRegSt-", "placeSt_A+", "placeSt_A-", "parkOnTape"]
+page2 = ["back", "write"] #, "delivTele+", "delivTele-", "placeSt+", "placeSt-", "towerLevel+", "towerLevel-", "capLevel+", "capLevel-", "capTower", "removeBase", "parkInSite"]
 
-#buttons = []
+buttonsgroup1 = displayio.Group(max_size=30) #(max_size=len(page1)) 
+buttonsgroup2 = displayio.Group(max_size=30) #(max_size=len(page2) + 1)
+
 buttonsAuto = []
 buttonsTele = []
 for spot in spots:
     button = Button(x=spot['pos'][0], y=spot['pos'][1],
                     width=spot['size'][0], height=spot['size'][1],
-                    style=Button.ROUNDRECT,
+                    style=Button.RECT,
                     fill_color=spot['color'], outline_color=0x222222,
-                    name=spot['id'],label=spot['label'], label_font=arial_16)
+                    name=spot['id'],label=spot['label'], label_font=arial_12)
     #buttons.append(button)
-    if spot['id'] in page1:
+    if (spot['id'] in page1) or (spot['id'] in statList[0:autoTeleSplit]) or (spot['id'][0:len(spot['id'])-1] in statList[0:autoTeleSplit]):
         buttonsAuto.append(button)
         buttonsgroup1.append(button.group)
-        print("Adding {} to pg1".format(spot))
+#         print("Adding {} to pg1".format(spot))
     else:
         buttonsTele.append(button)
         buttonsgroup2.append(button.group)
-        print("Adding {} to pg2".format(spot))
+#         print("Adding {} to pg2".format(spot))
 
-
+del spots, page1, page2, intButtonOffset, intButtonXOffset
+gc.collect()
 
 print("RAM (post-spots loop): ", gc.mem_free())
 print("Allocated RAM: ", gc.mem_alloc())
 
-dispgroup1 = displayio.Group(max_size=9)
+dispgroup1 = displayio.Group(max_size=15)
 
-print("RAM (post-group init): ", gc.mem_free())
-print("Allocated RAM: ", gc.mem_alloc())
+labelOffset = 15
+intNumOffset = 50
+intLabelOffset = 7
+# T/F Labels
+dispgroup1.append(Label(nunito, text="AutoScore", color=HEX_WHITE, x=10, y=10)) #Title
 
-dispgroup1.append(Label(h_font, text="AutoScore", color=HEX_WHITE, x=15, y=25)) #correct
+dispgroup1.append(Label(arial_12, text="Duck", color=HEX_WHITE, x=10, y=bp["autoDuck"][1] + labelOffset))
 
-dispgroup1.append(Label(arial_12, text="BaseMove", color=HEX_WHITE, x=10, y=75)) #correct
+dispgroup1.append(Label(arial_12, text="Park\nSQ", color=HEX_WHITE, x=10, y=bp["parkSquare"][1] + labelOffset))
 
-dispgroup1.append(Label(arial_12, text="Park", color=HEX_WHITE, x=10, y=133)) #correct
+dispgroup1.append(Label(arial_12, text="Park\nWHSE", color=HEX_WHITE, x=10, y=bp["parkWarehouse"][1] + labelOffset))
 
-dispgroup1.append(Label(arial_12, text="SkStDelived", color=HEX_WHITE, x=205, y=10)) #correct
-delivSkyStLabel = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=27) #correct
-dispgroup1.append(delivSkyStLabel)
+dispgroup1.append(Label(arial_12, text="Park\nCompl", color=HEX_WHITE, x=10, y=bp["complParked"][1] + labelOffset))
 
-dispgroup1.append(Label(arial_12, text="RgStDelived", color=HEX_WHITE, x=205, y=85)) #correct
-delivRegStLabel = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=102) #correct
-dispgroup1.append(delivRegStLabel) 
+dispgroup1.append(Label(arial_12, text="correct\nLevel", color=HEX_WHITE, x=10, y=bp["correctLevel"][1] + labelOffset))
 
-dispgroup1.append(Label(arial_12, text="StPlaced", color=HEX_WHITE, x=205, y=160)) #correct
-placeSt_ALabel = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=177) #correct
-dispgroup1.append(placeSt_ALabel)
+dispgroup1.append(Label(arial_12, text="used\nTSE", color=HEX_WHITE, x=10, y=bp["usedTSE"][1] + labelOffset))
+
+# INT Labels
+dispgroup1.append(Label(arial_12, text="shipSQ", color=HEX_WHITE, x=bp["autoSq"][0], y=bp["autoSq"][1] + intLabelOffset)) 
+autoSqLabel = Label(arial_12, text="00", color=HEX_WHITE, x=bp["autoSq"][0] + intNumOffset, y=bp["autoSq"][1] + intLabelOffset) #These var names must be `[the stat name]Label`
+dispgroup1.append(autoSqLabel) #make sure this matches the line above
+
+dispgroup1.append(Label(arial_12, text="shipHub", color=HEX_WHITE, x=bp["autoShipHub"][0], y=bp["autoShipHub"][1] + intLabelOffset)) 
+autoShipHubLabel = Label(arial_12, text="00", color=HEX_WHITE, x=bp["autoShipHub"][0] + intNumOffset, y=bp["autoShipHub"][1] + intLabelOffset) 
+dispgroup1.append(autoShipHubLabel) 
+
+# dispgroup1.append(Label(arial_12, text="StPlaced", color=HEX_WHITE, x=205, y=160)) 
+# placeSt_ALabel = Label(arial_12, text="00", color=HEX_WHITE, x=255, y=177) 
+# dispgroup1.append(placeSt_ALabel)
 
 print("RAM (post-dispgroup1): ", gc.mem_free())
 print("Allocated RAM: ", gc.mem_alloc())
 
-dispgroup2 = displayio.Group(max_size=12)
+dispgroup2 = displayio.Group(max_size=20)
 
-dispgroup2.append(Label(h_font, text="TeleScore", color=HEX_WHITE, x=15, y=25)) #correct
+# T/F Labels
+dispgroup2.append(Label(nunito, text="TeleScore", color=HEX_WHITE, x=10, y=10)) 
 
-dispgroup2.append(Label(arial_12, text="Cap", color=HEX_WHITE, x=10, y=60)) #correct
+dispgroup2.append(Label(arial_12, text="Hub\nBal.", color=HEX_WHITE, x=10, y=bp["hubBalanced"][1] + labelOffset))
 
-dispgroup2.append(Label(arial_12, text="RmoveBase", color=HEX_WHITE, x=10, y=110)) #correct
+dispgroup2.append(Label(arial_12, text="shared\ntipped", color=HEX_WHITE, x=10, y=bp["sharedTipped"][1] + labelOffset))
 
-dispgroup2.append(Label(arial_12, text="Park", color=HEX_WHITE, x=10, y=160)) #correct
+dispgroup2.append(Label(arial_12, text="Park\nWHSE", color=HEX_WHITE, x=10, y=bp["endPark"][1] + labelOffset))
 
-dispgroup2.append(Label(arial_12, text="Delivs", color=HEX_WHITE, x=205, y=10)) #correct
-delivTeleLabel = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=10) #correct
-dispgroup2.append(delivTeleLabel)
+dispgroup2.append(Label(arial_12, text="Park\ncompl.", color=HEX_WHITE, x=10, y=bp["compEndPark"][1] + labelOffset))
 
-dispgroup2.append(Label(arial_12, text="Places", color=HEX_WHITE, x=205, y=67)) #correct
-placeStLabel = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=67) #correct
-dispgroup2.append(placeStLabel) 
+dispgroup2.append(Label(arial_12, text="hub\ncap", color=HEX_WHITE, x=10, y=bp["hubCapped"][1] + labelOffset))
 
-dispgroup2.append(Label(arial_12, text="TwrLvl", color=HEX_WHITE, x=205, y=122)) #correct
-towerLevelLabel = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=122) #correct
-dispgroup2.append(towerLevelLabel)
+# INT Labels
+dispgroup2.append(Label(arial_12, text="ducks", color=HEX_WHITE, x=bp["duckCt"][0], y=bp["duckCt"][1] + intLabelOffset)) 
+duckCtLabel = Label(arial_12, text="00", color=HEX_WHITE, x=bp["duckCt"][0] + intNumOffset, y=bp["duckCt"][1] + intLabelOffset) 
+dispgroup2.append(duckCtLabel)
 
-dispgroup2.append(Label(arial_12, text="CapLvl", color=HEX_WHITE, x=205, y=180)) #correct
-capLevelLabel = Label(arial_16, text="00", color=HEX_WHITE, x=255, y=180) #correct
-dispgroup2.append(capLevelLabel)
+dispgroup2.append(Label(arial_12, text="lvl3", color=HEX_WHITE, x=bp["shipLvl3"][0], y=bp["shipLvl3"][1] + intLabelOffset)) 
+shipLvl3Label = Label(arial_12, text="00", color=HEX_WHITE, x=bp["shipLvl3"][0] + intNumOffset, y=bp["shipLvl3"][1] + intLabelOffset) 
+dispgroup2.append(shipLvl3Label)
+
+dispgroup2.append(Label(arial_12, text="lvl2", color=HEX_WHITE, x=bp["shipLvl2"][0], y=bp["shipLvl2"][1] + intLabelOffset)) 
+shipLvl2Label = Label(arial_12, text="00", color=HEX_WHITE, x=bp["shipLvl2"][0] + intNumOffset, y=bp["shipLvl2"][1] + intLabelOffset) 
+dispgroup2.append(shipLvl2Label)
+
+dispgroup2.append(Label(arial_12, text="lvl1", color=HEX_WHITE, x=bp["shipLvl1"][0], y=bp["shipLvl1"][1] + intLabelOffset)) 
+shipLvl1Label = Label(arial_12, text="00", color=HEX_WHITE, x=bp["shipLvl1"][0] + intNumOffset, y=bp["shipLvl1"][1] + intLabelOffset) 
+dispgroup2.append(shipLvl1Label)
+
+dispgroup2.append(Label(arial_12, text="shared", color=HEX_WHITE, x=bp["shipShared"][0], y=bp["shipShared"][1] + intLabelOffset)) 
+shipSharedLabel = Label(arial_12, text="00", color=HEX_WHITE, x=bp["shipShared"][0] + intNumOffset, y=bp["shipShared"][1] + intLabelOffset) 
+dispgroup2.append(shipSharedLabel)
+
+dispgroup2.append(Label(arial_12, text="shipSQ", color=HEX_WHITE, x=bp["shipSq"][0], y=bp["shipSq"][1] + intLabelOffset)) 
+shipSqLabel = Label(arial_12, text="00", color=HEX_WHITE, x=bp["shipSq"][0] + intNumOffset, y=bp["shipSq"][1] + intLabelOffset) 
+dispgroup2.append(shipSqLabel)
 
 print("RAM (post-dispgroup2): ", gc.mem_free())
 print("Allocated RAM: ", gc.mem_alloc())
@@ -334,31 +426,40 @@ teleGroup = displayio.Group(max_size=5)
 teleGroup.append(buttonsgroup2)
 teleGroup.append(dispgroup2)
 
+del bp
 gc.collect()
 
 print("RAM (post-labels)", gc.mem_free())
 print("Allocated RAM: ", gc.mem_alloc())
 
 maindict = {
-	"rePosBase"	: False,
-	"delivSkySt": 0,
-	"delivRegSt": 0,
-	"placeSt_A"	: 0,
-	"parkOnTape": False,
-	"delivTele"	: 0,
-	"placeSt"	: 0,
-	"towerLevel": 0,
-	"capTower"	: False,
-	"capLevel"	: 0,
-	"removeBase": False,
-	"parkInSite": False
+	"autoDuck"			: False,
+	"parkSquare"		: False,
+	"parkWarehouse"		: False,
+	"complParked"		: False,
+	"correctLevel"		: False,
+	"usedTSE"			: False,
+	"autoSq"			: 0,
+	"autoShipHub"		: 0,
+	"shipSq"			: 0, #Teleop \/
+	"shipLvl1"			: 0,
+	"shipLvl2"			: 0,
+	"shipLvl3"			: 0,
+	"shipShared"		: 0,
+	"duckCt"			: 0,
+	"hubBalanced"		: False,
+	"sharedTipped"		: False,
+	"endPark"			: False,
+	"compEndPark"		: False,
+	"hubCapped"			: False
 }
-maindictorder = ["rePosBase", "delivSkySt", "delivRegSt", "placeSt_A", "parkOnTape", "delivTele", "placeSt", "towerLevel", "capTower", "capLevel", "removeBase", "parkInSite"]
+maindictorder = statList#["rePosBase", "delivSkySt", "delivRegSt", "placeSt_A", "parkOnTape", "delivTele", "placeSt", "towerLevel", "capTower", "capLevel", "removeBase", "parkInSite"]
 
 
 
 def update_display(page):
 	"""Update the display with current info."""
+	# page can either be 1 or 2, signifying Auto or Tele pages
 	#print("updating display")
 	gc.collect()
 	if page == 1:
@@ -368,21 +469,25 @@ def update_display(page):
 	
 	for button in buttonArray:
 		if button.name[len(button.name)-1:] in ["+", "-"]:
-			type = "int"
-		elif button.name in ["nextpage", "back", "write"]:
-			type = "other"
-		else:
-			type = "boolean"
-		#print("Looping through button {} with type {}".format(button.name, type))
-		if type == "int":
+#			type = "int"
 			dictName = button.name[:len(button.name)-1]
-			labelName = "{}Label".format(dictName)
-			#print(labelName, dictName)
-			exec('%s.text = "{00}".format(str(maindict["%s"]))' % (labelName, str(dictName)))
-			
-		elif type == "boolean":
-			#maindict[button.name] = not(maindict[button.name])
+			exec('%s.text = "{00}".format(str(maindict["%s"]))' % ("{}Label".format(dictName), str(dictName)))
+		elif button.name in ["nextpage", "back", "write"]:
+#			type = "other"
+			pass
+		else:
+#			type = "boolean"
 			button.label = str(maindict[button.name])
+
+#		if type == "int":
+#			dictName = button.name[:len(button.name)-1]
+#			labelName = "{}Label".format(dictName)
+#			exec('%s.text = "{00}".format(str(maindict["%s"]))' % (labelName, str(dictName)))
+#			  exec('%s.text = "{00}".format(str(maindict["%s"]))' % ("{}Label".format(dictName), str(dictName)))
+			
+# 		elif type == "boolean":
+			#maindict[button.name] = not(maindict[button.name])
+# 			button.label = str(maindict[button.name])
 			#print("maindict[{}] - {}".format(button.name, maindict[button.name]))
 		gc.collect()
 	#print("display update finished")
@@ -404,53 +509,10 @@ def update_display(page):
 	else:
 		buttons[4].label = "False"
 	'''
-	gc.collect()
+# 	gc.collect()
 	print("RAM (update_disp): ", gc.mem_free())
 	#print("Allocated RAM: ", gc.mem_alloc())
-	board.DISPLAY.refresh_soon()
-
-
-def sd_write():
-	print("Writing to sd card...")
-	superorder = []
-	matchNum = 1
-	
-	for l in superdict:
-		superorder.append(l)
-		print(superorder)
-	
-	f = open('/sd/data.txt', 'a')
-	#f.write(columnHeaders)
-	#f.write("\n")
-	for m in superorder:
-		for x in range(len(superdict[m])):
-			f.write(str(m)+",")
-			f.write(str(matchNum)+",")
-			matchNum += 1
-			for y in range(numStats):
-				if y == numStats-1:
-					f.write(str(superdict[m][x][y]))
-				else:
-					f.write(str(superdict[m][x][y])+",")
-				print(str(superdict[superorder[len(maindict)-1]][x][y]))
-			f.write("\n")
-		#f.write("\n")
-	f.close()
-
-def matrix_write():
-	matchdata = []
-	for v in maindictorder:
-		if maindict.get(v) == False:
-			matchdata.append("0")
-		elif maindict.get(v) == True:
-			matchdata.append("1")
-		else:
-			matchdata.append(str(maindict.get(v)))
-		print(maindict.get(v))
-	if teamid not in superdict:
-		superdict[teamid] = []
-	superdict[teamid].append(matchdata)
-	print("Superdict:", superdict)
+	board.DISPLAY.refresh()
 
 def write_data():
 	matchdata = []
@@ -506,14 +568,23 @@ gc.collect()
 #for i in range(len(loadingScreenGroup)):
 #	loadingScreenGroup.pop(i)
 
+del odb, face
+
 gc.collect()
 print("RAM (before loop main start): ", gc.mem_free())
 #inPreMainLoop = 1
 bypassKeyboard = False
 print("Beginning Superloop")
+board.DISPLAY.show(preMainGroup)
+del loadingScreenGroup
+del nunito
+del loading
+del plsWait
+gc.collect()
+print("RAM (after del loadingScreenGroup): ", gc.mem_free())
 while True:
 	
-	if bypassKeyboard == False:
+	if bypassKeyboard == False: #bypassKeyboard is True when user wants to go back to the Auto screen from the Teleop screen, False when user needs to input new team number.
 		timesPressed = 0
 		timesPressedMax = 5 #change to "2" for matchid
 		inPreMainLoop = 1 #change to "2" for matchid
@@ -525,6 +596,7 @@ while True:
 		print("Allocated RAM: ", gc.mem_alloc())
 		teamIdLabelText.color = HEX_BLUE
 		timesPressedMax = 5
+		
 	while inPreMainLoop > 0:
 		touch = ts.touch_point
 		if touch:
@@ -532,23 +604,19 @@ while True:
 				if button.contains(touch):
 					print("Touched", button.name)
 					lastPressed = button.name
-					if timesPressed < timesPressedMax:  #in coda, this looks wrong, but its fine
+					if timesPressed < timesPressedMax:
 						if button.name in ["0","1","2","3","4","5","6","7","8","9"]:
-							if inPreMainLoop == 2:
-								matchid = int(str(matchid)+str(button.name))
-								print("matchid:", matchid)
 							if inPreMainLoop == 1:
 								teamid = int(str(teamid)+str(button.name))
 								print("teamid:", teamid)
 							timesPressed += 1
+# 							time.sleep(delay)
 					if button.name == "clear":
-						if inPreMainLoop == 2:
-							matchid = 0
-							print("matchid:", matchid)
 						if inPreMainLoop == 1:
 							teamid = 0
 							print("teamid:", teamid)
 						timesPressed = 0
+# 						time.sleep(delay)
 			
 					elif button.name == "acc":
 						inPreMainLoop -= 1
@@ -557,6 +625,7 @@ while True:
 						timesPressedMax = 5
 						print("matchid:", matchid)
 						print("Ack")
+# 						time.sleep(delay)
 						
 					k_update_display()
 					gc.collect()
@@ -564,8 +633,9 @@ while True:
 					#print("Allocated RAM: ", gc.mem_alloc())
 					gc.collect()
 					break
-		time.sleep(delay)
+# 		time.sleep(delay)
 	#time.sleep(1)
+	
 	inAutoLoop = True
 	board.DISPLAY.show(autoGroup)
 	update_display(1)
@@ -590,7 +660,7 @@ while True:
 					update_display(1)
 					gc.collect()
 					break
-		time.sleep(delay)
+		time.sleep(0.01)
 	print("Starting Tele Loop")
 	inTeleLoop = True
 	board.DISPLAY.show(teleGroup)
@@ -605,8 +675,6 @@ while True:
 					lastPressed = button.name
 					
 					if button.name == "write":
-						#matrix_write()
-						#sd_write()
 						write_data()
 						inTeleLoop = False
 						bypassKeyboard = False
@@ -625,23 +693,30 @@ while True:
 					update_display(2)
 					gc.collect()
 					break
-		time.sleep(delay)
+		time.sleep(0.01)
 		
 	if bypassKeyboard == False:
 		matchid += 1
 		teamid = 0
 		maindict = {
-			"rePosBase"	: False,
-			"delivSkySt": 0,
-			"delivRegSt": 0,
-			"placeSt_A"	: 0,
-			"parkOnTape": False,
-			"delivTele"	: 0,
-			"placeSt"	: 0,
-			"towerLevel": 0,
-			"capTower"	: False,
-			"capLevel"	: 0,
-			"removeBase": False,
-			"parkInSite": False
+			"autoDuck"			: False,
+			"parkSquare"		: False,
+			"parkWarehouse"		: False,
+			"complParked"		: False,
+			"correctLevel"		: False,
+			"usedTSE"			: False,
+			"autoSq"			: 0,
+			"autoShipHub"		: 0,
+			"shipSq"			: 0, #Teleop \/
+			"shipLvl1"			: 0,
+			"shipLvl2"			: 0,
+			"shipLvl3"			: 0,
+			"shipShared"		: 0,
+			"duckCt"			: 0,
+			"hubBalanced"		: False,
+			"sharedTipped"		: False,
+			"endPark"			: False,
+			"compEndPark"		: False,
+			"hubCapped"			: False
 		}
 	gc.collect()
