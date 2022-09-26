@@ -266,6 +266,8 @@ for spot in spots:
         buttonsgroup2.append(button.group)
         print("Adding {} to pg2".format(spot))
 
+
+
 print("RAM (post-spots loop): ", gc.mem_free())
 print("Allocated RAM: ", gc.mem_alloc())
 
